@@ -28,20 +28,27 @@ class Lexer {
    public:
 
         Lexer();
-        std::string getCurrentTokenStr();
         void load(std::string &line);
-        void next();
-        char currentChr();
-        char peek();
-        void match(TOKEN_TYPES);
-        void nextToken();
 
     protected:
 
         TOKEN_TYPES token;
-        int start_position;
         int end_position;
         std::string buffer;
+        std::string substr;
+
+        std::string getCurrentTokenStr();
+        char currentChr();
+        char peek();
+        void nextToken();
+        void next();
+        void backup();
+        void save();
+        void saveAndNext();
+        bool isAlpha();
+        bool isDigit();
+        bool match(TOKEN_TYPES type);
+        void skipWhiteSpace();
 
     friend class Parser;
 };

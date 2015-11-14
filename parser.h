@@ -7,6 +7,7 @@ class Parser {
     public:
         Parser();
         std::string execute(std::string line);
+        int arithmetic();
 
     friend Lexer;
 };
