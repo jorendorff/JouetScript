@@ -1,2 +1,2 @@
 default:
-	g++ -std=c++11 parser.cpp lexer.cpp -o parser
+	g++ -std=c++11 jscript.cpp lexer.cpp jsvalue.cpp -o jouet-script

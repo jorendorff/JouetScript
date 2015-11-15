@@ -50,7 +50,7 @@ class Lexer {
         bool match(TOKEN_TYPES type);
         void skipWhiteSpace();
 
-    friend class Parser;
+    friend class JScript;
 };
 
 #endif
