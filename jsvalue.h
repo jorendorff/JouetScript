@@ -2,10 +2,10 @@
 #define JSOBJECT_H
 
 enum JSVALUE_FLAGS {
-    JSVALUE_UNDEFINED,
-    JSVALUE_STRING,
-    JSVALUE_INT,
-    JSVALUE_FLOAT
+    JSVALUE_UNDEFINED   = 0,
+    JSVALUE_STRING      = 1,
+    JSVALUE_INT         = 2,
+    JSVALUE_FLOAT       = 4
 };
 
 class JSValue {
@@ -15,11 +15,11 @@ class JSValue {
         JSValue(int, JSVALUE_FLAGS);
         JSValue(float, JSVALUE_FLAGS);
 
-        bool isInt() { return flags & JSVALUE_INT ? true : false; };
+        bool isInt() { return (flags & JSVALUE_INT) != 0; };
         int getInt();
         void setInt();
 
-        bool isFloat();
+        bool isFloat() { return (flags & JSVALUE_FLOAT) != 0; };
         float getFloat();
         void setFloat();
 
@@ -27,7 +27,8 @@ class JSValue {
         std::string getString();
         void setString();
 
-        std::shared_ptr<JSValue> arithmetic(std::shared_ptr<JSValue>, char);
+        std::string str();
+        std::unique_ptr<JSValue> arithmetic(std::unique_ptr<JSValue>, char);
 
 
     protected:

@@ -24,6 +24,8 @@ std::string Lexer::getCurrentTokenStr() {
         case EQUALS : return "EQUALS";
         case OPERATOR : return "OPERATOR";
         case SEMICOLON : return "SEMICOLON";
+        case L_PAR : return "L_PAR";
+        case R_PAR : return "R_PAR";
         case _EOF_ : return "EOF";
         default : throw new LexerException("Unknown Symbol");
     }
@@ -120,11 +122,11 @@ void Lexer::nextToken() {
         return;
     }
 
-    /* EQUALS */
-    if (this->currentChr() == '=') {
-        token = EQUALS;
-        this->saveAndNext();
-        return;
+    /* OTHER SYMBOLS */
+    switch (this->currentChr()) {
+        case '=' : token = EQUALS; this->saveAndNext(); return;
+        case '(' : token = L_PAR;  this->saveAndNext(); return;
+        case ')' : token = R_PAR;  this->saveAndNext(); return;
     }
 
     while (this->currentChr() != '\0')

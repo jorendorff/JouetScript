@@ -13,6 +13,8 @@ enum TOKEN_TYPES {
     EQUALS,
     OPERATOR,
     SEMICOLON,
+    L_PAR,
+    R_PAR,
     _EOF_
 };
 

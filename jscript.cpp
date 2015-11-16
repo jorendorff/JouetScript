@@ -16,10 +16,13 @@ JScript::JScript() {
     lexer = _lexer;
 };
 
-std::shared_ptr<JSValue> JScript::arithmetic() {
-    std::shared_ptr<JSValue> r;
+std::unique_ptr<JSValue> JScript::arithmetic() {
+    std::unique_ptr<JSValue> r;
     if (lexer.match(INT)) {
-        r = std::shared_ptr<JSValue>(new JSValue(std::stoi(lexer.substr), JSVALUE_INT));
+        r = std::unique_ptr<JSValue>(new JSValue(std::stoi(lexer.substr), JSVALUE_INT));
+    } else if (lexer.match(FLOAT)) {
+        r = std::unique_ptr<JSValue>(new JSValue(std::stof(lexer.substr), JSVALUE_FLOAT));
+
     }
     lexer.nextToken();
     if (lexer.match(OPERATOR)) {
@@ -27,19 +30,20 @@ std::shared_ptr<JSValue> JScript::arithmetic() {
         char op = lexer.currentChr();
         lexer.next();
         lexer.nextToken();
-        if (lexer.match(INT))
+        if (lexer.match(INT) or lexer.match(FLOAT)) {
             r = r->arithmetic(this->arithmetic(), op);
+        }
     }
     return r;
 };
 
-std::shared_ptr<JSValue> JScript::execute(std::string line) {
-    std::shared_ptr<JSValue> result;
+std::unique_ptr<JSValue> JScript::execute(std::string line) {
+    std::unique_ptr<JSValue> result;
     lexer.load(line);
     lexer.token = EMPTY;
     while (lexer.token != _EOF_) {
         lexer.nextToken();
-        if (lexer.match(INT)) {
+        if (lexer.match(INT) or lexer.match(FLOAT)) {
             result = this->arithmetic();
             continue;
         }
@@ -54,7 +58,7 @@ int main() {
         char data[MAX_LINE_LENGTH];
         std::cin.getline(data, MAX_LINE_LENGTH);
         try {
-            std::cout << "> " << jscript.execute(data)->getInt() << std::endl;
+            std::cout << "> " << jscript.execute(data)->str() << std::endl;
         } catch (LexerException *ex) {
             std::cerr << ex->what() << std::endl;
         };

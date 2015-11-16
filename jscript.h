@@ -8,8 +8,8 @@ class JScript {
 
     public:
         JScript();
-        std::shared_ptr<JSValue> arithmetic();
-        std::shared_ptr<JSValue> execute(std::string line);
+        std::unique_ptr<JSValue> arithmetic();
+        std::unique_ptr<JSValue> execute(std::string line);
 
     friend Lexer;
 };
