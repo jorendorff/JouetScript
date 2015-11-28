@@ -35,14 +35,18 @@ class Lexer {
     protected:
 
         TOKEN_TYPES token;
+        TOKEN_TYPES prev_token;
         int end_position;
+        int prev_position;
         std::string buffer;
         std::string substr;
+        std::string prev_substr;
 
         std::string getCurrentTokenStr();
         char currentChr();
         char peek();
         void nextToken();
+        void prevToken();
         void next();
         void backup();
         void save();

@@ -1,12 +1,18 @@
 #ifndef JSOBJECT_H
 #define JSOBJECT_H
 
+#include <vector>
+
 enum JSVALUE_FLAGS {
     JSVALUE_UNDEFINED   = 0,
     JSVALUE_STRING      = 1,
     JSVALUE_INT         = 2,
     JSVALUE_FLOAT       = 4
 };
+
+class JSValue;
+
+typedef std::unique_ptr<JSValue> JSValuePtr;
 
 class JSValue {
 
@@ -23,12 +29,12 @@ class JSValue {
         float getFloat();
         void setFloat();
 
-        bool isString();
+        bool isString() { return (flags & JSVALUE_STRING) != 0; };
         std::string getString();
         void setString();
 
         std::string str();
-        std::unique_ptr<JSValue> arithmetic(std::unique_ptr<JSValue>, char);
+        JSValuePtr arithmetic(JSValuePtr, char);
 
 
     protected:
@@ -36,6 +42,32 @@ class JSValue {
         std::string data;
         int intData;
         float floatData;
+        bool marked;
+};
+
+
+class JSValueHandle {
+
+    public:
+        JSValueHandle(JSValuePtr &value, const std::string name) : value(value) {};
+        JSValuePtr &value;
+        std::string name;
+};
+
+typedef std::shared_ptr<JSValueHandle> JSValueHandlePtr;
+
+class JSContext {
+
+    public:
+        /* Adds a child to the current scope */
+        void addChild(JSValueHandlePtr value);
+        JSValueHandlePtr findChild(const std::string name);
+        void pushScope();
+        void popScope();
+
+    protected:
+        std::vector<JSValuePtr> JSValueCache;
+        std::vector<std::vector<JSValueHandlePtr>> JSScopeChain;
 };
 
 #endif

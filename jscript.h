@@ -8,8 +8,11 @@ class JScript {
 
     public:
         JScript();
-        std::unique_ptr<JSValue> arithmetic();
-        std::unique_ptr<JSValue> execute(std::string line);
+        JSValuePtr digit();
+        JSValuePtr factor();
+        JSValuePtr mathExp(JSValuePtr &start);
+        JSValuePtr base();
+        JSValuePtr execute(std::string line);
 
     friend Lexer;
 };

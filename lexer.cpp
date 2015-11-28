@@ -9,6 +9,8 @@
 
 Lexer::Lexer() {
     end_position = 0;
+    prev_position = 0;
+
 }
 
 std::string Lexer::getCurrentTokenStr() {
@@ -79,7 +81,16 @@ bool Lexer::isDigit() {
     return false;
 }
 
+void Lexer::prevToken() {
+    substr = prev_substr;
+    end_position = prev_position;
+    token = prev_token;
+}
+
 void Lexer::nextToken() {
+    prev_substr = substr;
+    prev_position = end_position;
+    prev_token = token;
     substr.clear();
     this->skipWhiteSpace();
 

@@ -16,37 +16,66 @@ JScript::JScript() {
     lexer = _lexer;
 };
 
-std::unique_ptr<JSValue> JScript::arithmetic() {
-    std::unique_ptr<JSValue> r;
+JSValuePtr JScript::digit() {
     if (lexer.match(INT)) {
-        r = std::unique_ptr<JSValue>(new JSValue(std::stoi(lexer.substr), JSVALUE_INT));
+        return JSValuePtr(new JSValue(std::stoi(lexer.substr), JSVALUE_INT));
     } else if (lexer.match(FLOAT)) {
-        r = std::unique_ptr<JSValue>(new JSValue(std::stof(lexer.substr), JSVALUE_FLOAT));
+        return JSValuePtr(new JSValue(std::stof(lexer.substr), JSVALUE_FLOAT));
+    }
+    return NULL;
+};
 
-    }
+JSValuePtr JScript::factor() {
+    JSValuePtr r;
     lexer.nextToken();
-    if (lexer.match(OPERATOR)) {
-        lexer.backup();
-        char op = lexer.currentChr();
-        lexer.next();
-        lexer.nextToken();
-        if (lexer.match(INT) or lexer.match(FLOAT)) {
-            r = r->arithmetic(this->arithmetic(), op);
-        }
-    }
+    r = this->base();
+    lexer.nextToken();
+    if (!lexer.match(R_PAR))
+        throw;
     return r;
 };
 
-std::unique_ptr<JSValue> JScript::execute(std::string line) {
-    std::unique_ptr<JSValue> result;
+JSValuePtr JScript::mathExp(JSValuePtr &start) {
+    lexer.backup();
+    char op = lexer.currentChr();
+    lexer.next();
+    lexer.nextToken();
+    return start->arithmetic(this->base(), op);
+};
+
+JSValuePtr JScript::base() {
+    JSValuePtr val;
+
+    if (lexer.match(L_PAR)) {
+       val = this->factor();
+        lexer.nextToken();
+        if (lexer.match(OPERATOR)) {
+            return this->mathExp(val);
+        }
+        lexer.prevToken();
+        return val;
+    }
+
+    if (lexer.match(INT) or lexer.match(FLOAT)) {
+        val = this->digit();
+        lexer.nextToken();
+        if (lexer.match(OPERATOR)) {
+            return this->mathExp(val);
+        }
+        lexer.prevToken();
+        return val;
+    }
+    throw;
+};
+
+JSValuePtr JScript::execute(std::string line) {
+    JSValuePtr result;
     lexer.load(line);
     lexer.token = EMPTY;
-    while (lexer.token != _EOF_) {
+    while (true) {
         lexer.nextToken();
-        if (lexer.match(INT) or lexer.match(FLOAT)) {
-            result = this->arithmetic();
-            continue;
-        }
+        if (lexer.token == _EOF_) break;
+        result = this->base();
     }
     return result;
 }

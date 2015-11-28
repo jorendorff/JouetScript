@@ -7,6 +7,7 @@
 JSValue::JSValue(int data, JSVALUE_FLAGS flags) {
     this->intData = data;
     this->flags = flags;
+    this->marked = false;
 };
 
 int JSValue::getInt() {
@@ -16,10 +17,21 @@ int JSValue::getInt() {
 JSValue::JSValue(float data, JSVALUE_FLAGS flags) {
     this->floatData = data;
     this->flags = flags;
+    this->marked = false;
 };
 
 float JSValue::getFloat() {
     return floatData;
+}
+
+JSValue::JSValue(std::string data, JSVALUE_FLAGS flags) {
+    this->data = data;
+    this->flags = flags;
+    this->marked = false;
+};
+
+std::string JSValue::getString() {
+    return data;
 }
 
 std::string JSValue::str() {
@@ -28,6 +40,8 @@ std::string JSValue::str() {
         out << this->getInt();
     } else if (this->isFloat()) {
         out << this->getFloat();
+    } else if (this->isString()) {
+        out << this->getString();
     }
     return out.str();
 }
@@ -43,19 +57,19 @@ T mathOp(T a, T b, char op) {
     throw;
 };
 
-std::unique_ptr<JSValue> JSValue::arithmetic(std::unique_ptr<JSValue> value, char op) {
+JSValuePtr JSValue::arithmetic(JSValuePtr value, char op) {
     if (this->isFloat() or value->isFloat()) {
         float af, bf, cf;
         af = this->isFloat() ? this->getFloat() : (float)this->getInt();
         bf = value->isFloat() ? value->getFloat() : (float)value->getInt();
         cf = mathOp(af, bf, op);
-        return std::unique_ptr<JSValue>(new JSValue(cf, JSVALUE_FLOAT));
+        return JSValuePtr(new JSValue(cf, JSVALUE_FLOAT));
     } else if (this->isInt() and value->isInt()) {
         int a, b, c;
         a = this->getInt();
         b = value->getInt();
         c = mathOp(a, b, op);
-        return std::unique_ptr<JSValue>(new JSValue(c, JSVALUE_INT));
+        return JSValuePtr(new JSValue(c, JSVALUE_INT));
     }
     throw;
-}
+};
