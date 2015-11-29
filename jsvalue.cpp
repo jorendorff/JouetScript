@@ -38,6 +38,11 @@ std::string JSValue::getString() {
     return data;
 }
 
+JSValuePtr JSValue::execute() {
+    JSValuePtr val;
+    return val;
+};
+
 std::string JSValue::str() {
     std::ostringstream out;
     if (this->isInt()) {
@@ -89,6 +94,15 @@ JSContext::JSContext() {
     JSValueCache = std::vector<JSValuePtr>();
     JSScopeChain = std::vector<std::vector<JSValueHandlePtr>>();
     JSScopeChain.push_back(std::vector<JSValueHandlePtr>());
+};
+
+void JSContext::pushScope() {
+    JSScopeChain = std::vector<std::vector<JSValueHandlePtr>>();
+    JSScopeChain.push_back(std::vector<JSValueHandlePtr>());
+};
+
+void JSContext::popScope() {
+    JSScopeChain.pop_back();
 };
 
 void JSContext::addChild(JSValueHandlePtr value) {

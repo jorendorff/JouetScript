@@ -106,6 +106,9 @@ void Lexer::nextToken() {
         if (substr == "var") {
             token = VAR;
             return;
+        } else if (substr == "function") {
+            token = FUNCTION;
+            return;
         } else {
             token = IDENTIFIER;
             return;
@@ -150,9 +153,11 @@ void Lexer::nextToken() {
 
     /* OTHER SYMBOLS */
     switch (this->currentChr()) {
-        case '=' : token = EQUALS; this->saveAndNext(); return;
-        case '(' : token = L_PAR;  this->saveAndNext(); return;
-        case ')' : token = R_PAR;  this->saveAndNext(); return;
+        case '=' : token = EQUALS;      this->saveAndNext(); return;
+        case '(' : token = L_PAR;       this->saveAndNext(); return;
+        case ')' : token = R_PAR;       this->saveAndNext(); return;
+        case '{' : token = L_BRACKET;   this->saveAndNext(); return;
+        case '}' : token = R_BRACKET;   this->saveAndNext(); return;
     }
 
     while (this->currentChr() != '\0')
