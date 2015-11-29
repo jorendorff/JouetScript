@@ -26,7 +26,7 @@ JSValuePtr JScript::factor() {
     r = this->base();
     lexer.nextToken();
     if (!lexer.match(R_PAR))
-        throw;
+        lexer.error();
     return r;
 };
 
@@ -40,13 +40,13 @@ JSValuePtr JScript::mathExp(JSValuePtr &start) {
 
 void JScript::assignment() {
     if (!lexer.match(IDENTIFIER))
-        throw;
+        lexer.error("invalid assignment, identifier expected");
 
     std::string name = lexer.substr;
 
     lexer.nextToken();
     if (!lexer.match(EQUALS))
-        throw;
+        lexer.error();
 
     lexer.nextToken();
     JSValuePtr value = this->base();
@@ -68,7 +68,7 @@ JSValuePtr JScript::base() {
         JSValueHandlePtr tmp = cxt.findChild(lexer.substr);
         // identifiers without a "var" prefix _must_ exist
         if (tmp == NULL)
-            throw;
+            lexer.error("'" + lexer.substr + "' is undefined");
 
         lexer.nextToken();
         if (lexer.match(EQUALS)) {
@@ -104,7 +104,7 @@ JSValuePtr JScript::base() {
         lexer.prevToken();
         return val;
     }
-    throw;
+    lexer.error("invalid symbol");
 };
 
 JSValuePtr JScript::execute(std::string line) {
@@ -116,6 +116,7 @@ JSValuePtr JScript::execute(std::string line) {
         if (lexer.token == _EOF_) break;
         result = this->base();
     }
+    lexer.reset();
     return result;
 }
 
@@ -128,7 +129,7 @@ int main() {
         try {
             std::cout << "> " << jscript.execute(data)->str() << std::endl;
         } catch (LexerException *ex) {
-            std::cerr << ex->what() << std::endl;
+            std::cout << ex->msg << std::endl;
         };
     }
 }

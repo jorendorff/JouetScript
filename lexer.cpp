@@ -3,6 +3,7 @@
 #include <memory>
 #include <string>
 #include <string.h>
+#include <sstream>
 #include <vector>
 
 #include "lexer.h"
@@ -10,7 +11,6 @@
 Lexer::Lexer() {
     end_position = 0;
     prev_position = 0;
-
 }
 
 std::string Lexer::getCurrentTokenStr() {
@@ -32,7 +32,7 @@ std::string Lexer::getCurrentTokenStr() {
         case L_BRACKET : return "L_BRACKET";
         case R_BRACKET : return "R_BRACKET";
         case _EOF_ : return "EOF";
-        default : throw new LexerException("Unknown Symbol");
+        default : throw "Unknown Symbol";
     }
 }
 
@@ -158,3 +158,21 @@ bool Lexer::match(TOKEN_TYPES type) {
 void Lexer::load(std::string &line) {
     buffer = buffer + line;
 };
+
+void Lexer::reset() {
+    buffer = "";
+    end_position = 0;
+    prev_position = 0;
+    token = EMPTY;
+    prev_token = EMPTY;
+    substr = "";
+    prev_substr = "";
+};
+
+void Lexer::error() {
+    throw new LexerException("expected " + getCurrentTokenStr(), end_position);
+}
+
+void Lexer::error(const std::string msg) {
+    throw new LexerException(msg, end_position);
+}

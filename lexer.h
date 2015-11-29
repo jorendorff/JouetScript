@@ -21,11 +21,13 @@ enum TOKEN_TYPES {
     _EOF_
 };
 
-class LexerException : std::exception {
-    std::string _msg;
+class LexerException : std::exception
+{
     public:
-    LexerException(std::string _msg) { this->_msg = _msg; }
-    const char* what() const noexcept {return _msg.c_str();}
+        std::string msg;
+        LexerException(const std::string _msg, int column) {
+            msg = _msg + " : at column " + std::to_string(column);
+        }
 };
 
 class Lexer {
@@ -34,6 +36,7 @@ class Lexer {
 
         Lexer();
         void load(std::string &line);
+        void reset();
 
     protected:
 
@@ -58,6 +61,8 @@ class Lexer {
         bool isDigit();
         bool match(TOKEN_TYPES type);
         void skipWhiteSpace();
+        void error();
+        void error(const std::string);
 
     friend class JScript;
 };
