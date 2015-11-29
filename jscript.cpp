@@ -55,8 +55,29 @@ void JScript::assignment() {
     cxt.addChild(symbol);
 };
 
+JSValuePtr JScript::defineLambdaFunction() {
+    JSValuePtr val;
+    return val;
+};
+
+void JScript::defineFunction() {
+};
+
 JSValuePtr JScript::base() {
     JSValuePtr val = JSValuePtr(new JSValue());
+
+    /* DEFINE FUNCTION */
+    if (lexer.match(FUNCTION)) {
+        /* we'll either define or return a function depending
+         * on whether or not the keyword is followed by an identifier */
+        lexer.nextToken();
+        if (lexer.match(L_PAR))
+            return this->defineLambdaFunction();
+        if (!lexer.match(IDENTIFIER))
+            lexer.error();
+        this->defineFunction();
+        return val;
+    };
 
     if (lexer.match(VAR)) {
         lexer.nextToken();
@@ -115,7 +136,7 @@ JSValuePtr JScript::base() {
 
 JSValuePtr JScript::execute(std::string line) {
     JSValuePtr result = JSValuePtr(new JSValue());
-    if (line.length() > 0) lexer.load(line);
+    lexer.load(line);
     while (true) {
         lexer.nextToken();
         if (lexer.token == _EOF_) {
@@ -131,11 +152,16 @@ JSValuePtr JScript::execute(std::string line) {
 int main() {
     JScript jscript;
     for (;;) {
-        std::cout << "> ";
-        char data[MAX_LINE_LENGTH];
-        std::cin.getline(data, MAX_LINE_LENGTH);
         try {
-            std::cout << "> " << jscript.execute(data)->str() << std::endl;
+            /* only load new data if the lexer buffer is empty */
+            if (jscript.bytesRemaining() <= 0) {
+                char data[MAX_LINE_LENGTH];
+                std::cout << "> ";
+                std::cin.getline(data, MAX_LINE_LENGTH);
+                std::cout << jscript.execute(data)->str() << std::endl;
+            } else {
+                std::cout << jscript.execute("")->str() << std::endl;
+            }
         } catch (LexerException *ex) {
             std::cout << ex->msg << std::endl;
         };

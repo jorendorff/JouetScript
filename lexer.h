@@ -18,6 +18,7 @@ enum TOKEN_TYPES {
     R_PAR,
     L_BRACKET,
     R_BRACKET,
+    COMMA,
     _EOF_
 };
 

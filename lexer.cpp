@@ -15,24 +15,24 @@ Lexer::Lexer() {
 
 std::string Lexer::getCurrentTokenStr() {
     switch (token) {
-        case EMPTY : return "EMPTY";
+        case EMPTY      : return "EMPTY";
         case IDENTIFIER : return "IDENTIFIER";
-        case FUNCTION : return "FUNCTION";
-        case VAR : return "VAR";
-        case DIGIT : return "DIGIT";
-        case INT : return "INT";
-        case FLOAT : return "FLOAT";
-        case ALPHA : return "ALPHA";
-        case STRING : return "STRING";
-        case EQUALS : return "EQUALS";
-        case OPERATOR : return "OPERATOR";
-        case SEMICOLON : return "SEMICOLON";
-        case L_PAR : return "L_PAR";
-        case R_PAR : return "R_PAR";
-        case L_BRACKET : return "L_BRACKET";
-        case R_BRACKET : return "R_BRACKET";
-        case _EOF_ : return "EOF";
-        default : throw "Unknown Symbol";
+        case FUNCTION   : return "FUNCTION";
+        case VAR        : return "VAR";
+        case DIGIT      : return "DIGIT";
+        case INT        : return "INT";
+        case FLOAT      : return "FLOAT";
+        case ALPHA      : return "ALPHA";
+        case STRING     : return "STRING";
+        case EQUALS     : return "EQUALS";
+        case OPERATOR   : return "OPERATOR";
+        case SEMICOLON  : return "SEMICOLON";
+        case L_PAR      : return "L_PAR";
+        case R_PAR      : return "R_PAR";
+        case L_BRACKET  : return "L_BRACKET";
+        case R_BRACKET  : return "R_BRACKET";
+        case COMMA      : return "COMMA";
+        case _EOF_      : return "EOF";
     }
 }
 
@@ -155,12 +155,13 @@ void Lexer::nextToken() {
 
     /* OTHER SYMBOLS */
     switch (this->currentChr()) {
-        case '=' : token = EQUALS;      this->saveAndNext(); return;
-        case '(' : token = L_PAR;       this->saveAndNext(); return;
-        case ')' : token = R_PAR;       this->saveAndNext(); return;
-        case '{' : token = L_BRACKET;   this->saveAndNext(); return;
-        case '}' : token = R_BRACKET;   this->saveAndNext(); return;
-        case ';' : token = SEMICOLON;   this->saveAndNext(); return;
+        case '=' : token = EQUALS;      this->next(); return;
+        case '(' : token = L_PAR;       this->next(); return;
+        case ')' : token = R_PAR;       this->next(); return;
+        case '{' : token = L_BRACKET;   this->next(); return;
+        case '}' : token = R_BRACKET;   this->next(); return;
+        case ';' : token = SEMICOLON;   this->next(); return;
+        case ',' : token = COMMA;      this->next(); return;
     }
 
     while (this->currentChr() != '\0')

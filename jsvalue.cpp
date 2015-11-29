@@ -51,6 +51,8 @@ std::string JSValue::str() {
         out << this->getFloat();
     } else if (this->isString()) {
         out << this->getString();
+    } else if (this->isFunction()) {
+        out << "<function: " << this->getString() << ">";
     } else if (this->isUndefined()) {
         out << "undefined";
     }
