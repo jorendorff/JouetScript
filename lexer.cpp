@@ -99,7 +99,9 @@ void Lexer::nextToken() {
 
     /* ALPHA KEYWORDS AND IDENTIFIERS */
     if (this->isAlpha()) {
-        while (this->isAlpha() or this->isDigit()) {
+        while (this->isAlpha()
+            or this->isDigit()
+            or this->currentChr() == '_') {
             this->saveAndNext();}
         if (substr == "var") {
             token = VAR;
