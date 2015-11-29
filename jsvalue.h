@@ -7,7 +7,7 @@ enum JSVALUE_FLAGS {
     JSVALUE_UNDEFINED   = 0,
     JSVALUE_STRING      = 1,
     JSVALUE_INT         = 2,
-    JSVALUE_FLOAT       = 4
+    JSVALUE_FLOAT       = 4,
 };
 
 class JSValue;

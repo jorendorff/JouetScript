@@ -128,6 +128,16 @@ void Lexer::nextToken() {
         }
     }
 
+    /* STRINGS */
+    if (this->currentChr() == '"') {
+        this->next();
+        while (this->currentChr() != '"')
+            this->saveAndNext();
+       this->next();
+       token = STRING;
+       return;
+    }
+
     /* OPERATORS */
     if (this->currentChr() == '+' or
         this->currentChr() == '-' or

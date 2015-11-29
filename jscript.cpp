@@ -104,6 +104,11 @@ JSValuePtr JScript::base() {
         lexer.prevToken();
         return val;
     }
+
+    if (lexer.match(STRING)) {
+        val = JSValuePtr(new JSValue(lexer.substr, JSVALUE_STRING));
+        return val;
+    }
     lexer.error("invalid symbol");
 };
 
