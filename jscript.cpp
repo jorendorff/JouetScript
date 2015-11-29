@@ -39,7 +39,6 @@ JSValuePtr JScript::mathExp(JSValuePtr &start) {
 };
 
 void JScript::assignment() {
-    lexer.nextToken();
     if (!lexer.match(IDENTIFIER))
         throw;
 
@@ -60,19 +59,28 @@ JSValuePtr JScript::base() {
     JSValuePtr val = JSValuePtr(new JSValue());
 
     if (lexer.match(VAR)) {
+        lexer.nextToken();
         this->assignment();
         return val;
     }
 
     if (lexer.match(IDENTIFIER)) {
         JSValueHandlePtr tmp = cxt.findChild(lexer.substr);
+        // identifiers without a "var" prefix _must_ exist
         if (tmp == NULL)
             throw;
-        val = JSValuePtr(tmp->value);
+
         lexer.nextToken();
-        if (lexer.match(OPERATOR)) {
-            return this->mathExp(val);
+        if (lexer.match(EQUALS)) {
+            lexer.prevToken();
+            this->assignment();
+            return val;
         }
+
+        val = JSValuePtr(tmp->value);
+        if (lexer.match(OPERATOR))
+            return this->mathExp(val);
+
         lexer.prevToken();
         return val;
     };
