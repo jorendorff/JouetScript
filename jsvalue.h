@@ -12,11 +12,12 @@ enum JSVALUE_FLAGS {
 
 class JSValue;
 
-typedef std::unique_ptr<JSValue> JSValuePtr;
+typedef std::shared_ptr<JSValue> JSValuePtr;
 
 class JSValue {
 
     public:
+        JSValue();
         JSValue(std::string, JSVALUE_FLAGS);
         JSValue(int, JSVALUE_FLAGS);
         JSValue(float, JSVALUE_FLAGS);
@@ -32,6 +33,8 @@ class JSValue {
         bool isString() { return (flags & JSVALUE_STRING) != 0; };
         std::string getString();
         void setString();
+
+        bool isUndefined() { return (flags & JSVALUE_UNDEFINED) != 0; };
 
         std::string str();
         JSValuePtr arithmetic(JSValuePtr, char);
@@ -49,8 +52,8 @@ class JSValue {
 class JSValueHandle {
 
     public:
-        JSValueHandle(JSValuePtr &value, const std::string name) : value(value) {};
-        JSValuePtr &value;
+        JSValueHandle(JSValue *value, std::string name);
+        JSValuePtr value;
         std::string name;
 };
 
@@ -59,6 +62,7 @@ typedef std::shared_ptr<JSValueHandle> JSValueHandlePtr;
 class JSContext {
 
     public:
+        JSContext();
         /* Adds a child to the current scope */
         void addChild(JSValueHandlePtr value);
         JSValueHandlePtr findChild(const std::string name);
@@ -68,6 +72,8 @@ class JSContext {
     protected:
         std::vector<JSValuePtr> JSValueCache;
         std::vector<std::vector<JSValueHandlePtr>> JSScopeChain;
+
+    friend class JScript;
 };
 
 #endif

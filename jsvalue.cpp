@@ -4,6 +4,10 @@
 #include <sstream>
 #include "jsvalue.h"
 
+JSValue::JSValue() {
+    this->flags = JSVALUE_UNDEFINED;
+};
+
 JSValue::JSValue(int data, JSVALUE_FLAGS flags) {
     this->intData = data;
     this->flags = flags;
@@ -42,6 +46,8 @@ std::string JSValue::str() {
         out << this->getFloat();
     } else if (this->isString()) {
         out << this->getString();
+    } else if (this->isUndefined()) {
+        out << "undefined";
     }
     return out.str();
 }
@@ -72,4 +78,29 @@ JSValuePtr JSValue::arithmetic(JSValuePtr value, char op) {
         return JSValuePtr(new JSValue(c, JSVALUE_INT));
     }
     throw;
+};
+
+JSValueHandle::JSValueHandle(JSValue *value, const std::string name) {
+    this->name = name;
+    this->value = JSValuePtr(value);
+}
+
+JSContext::JSContext() {
+    JSValueCache = std::vector<JSValuePtr>();
+    JSScopeChain = std::vector<std::vector<JSValueHandlePtr>>();
+    JSScopeChain.push_back(std::vector<JSValueHandlePtr>());
+};
+
+void JSContext::addChild(JSValueHandlePtr value) {
+    JSScopeChain[JSScopeChain.size() - 1].push_back(value);
+};
+
+JSValueHandlePtr JSContext::findChild(std::string name) {
+    for (int i = JSScopeChain.size() - 1; i >= 0; i--) {
+        for (int j = JSScopeChain[i].size() - 1; j >= 0; j--) {
+            if (JSScopeChain[i][j]->name == name)
+                return JSScopeChain[i][j];
+        }
+    }
+    return NULL;
 };

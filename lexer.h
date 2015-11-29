@@ -4,6 +4,7 @@
 enum TOKEN_TYPES {
     EMPTY,
     IDENTIFIER,
+    FUNCTION,
     VAR,
     DIGIT,
     INT,
@@ -15,6 +16,8 @@ enum TOKEN_TYPES {
     SEMICOLON,
     L_PAR,
     R_PAR,
+    L_BRACKET,
+    R_BRACKET,
     _EOF_
 };
 

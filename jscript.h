@@ -5,16 +5,15 @@
 
 class JScript {
     Lexer lexer;
+    JSContext cxt;
 
     public:
-        JScript();
         JSValuePtr digit();
         JSValuePtr factor();
         JSValuePtr mathExp(JSValuePtr &start);
+        void assignment();
         JSValuePtr base();
         JSValuePtr execute(std::string line);
-
-    friend Lexer;
 };
 
 #endif

@@ -11,11 +11,6 @@
 
 #define MAX_LINE_LENGTH 2048
 
-JScript::JScript() {
-    Lexer _lexer;
-    lexer = _lexer;
-};
-
 JSValuePtr JScript::digit() {
     if (lexer.match(INT)) {
         return JSValuePtr(new JSValue(std::stoi(lexer.substr), JSVALUE_INT));
@@ -43,8 +38,44 @@ JSValuePtr JScript::mathExp(JSValuePtr &start) {
     return start->arithmetic(this->base(), op);
 };
 
+void JScript::assignment() {
+    lexer.nextToken();
+    if (!lexer.match(IDENTIFIER))
+        throw;
+
+    std::string name = lexer.substr;
+
+    lexer.nextToken();
+    if (!lexer.match(EQUALS))
+        throw;
+
+    lexer.nextToken();
+    JSValuePtr value = this->base();
+    cxt.JSValueCache.push_back(value);
+    JSValueHandlePtr symbol = JSValueHandlePtr(new JSValueHandle(&*value, name));
+    cxt.addChild(symbol);
+};
+
 JSValuePtr JScript::base() {
-    JSValuePtr val;
+    JSValuePtr val = JSValuePtr(new JSValue());
+
+    if (lexer.match(VAR)) {
+        this->assignment();
+        return val;
+    }
+
+    if (lexer.match(IDENTIFIER)) {
+        JSValueHandlePtr tmp = cxt.findChild(lexer.substr);
+        if (tmp == NULL)
+            throw;
+        val = JSValuePtr(tmp->value);
+        lexer.nextToken();
+        if (lexer.match(OPERATOR)) {
+            return this->mathExp(val);
+        }
+        lexer.prevToken();
+        return val;
+    };
 
     if (lexer.match(L_PAR)) {
        val = this->factor();
@@ -69,7 +100,7 @@ JSValuePtr JScript::base() {
 };
 
 JSValuePtr JScript::execute(std::string line) {
-    JSValuePtr result;
+    JSValuePtr result = JSValuePtr(new JSValue());
     lexer.load(line);
     lexer.token = EMPTY;
     while (true) {

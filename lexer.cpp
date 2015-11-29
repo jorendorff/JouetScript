@@ -17,6 +17,7 @@ std::string Lexer::getCurrentTokenStr() {
     switch (token) {
         case EMPTY : return "EMPTY";
         case IDENTIFIER : return "IDENTIFIER";
+        case FUNCTION : return "FUNCTION";
         case VAR : return "VAR";
         case DIGIT : return "DIGIT";
         case INT : return "INT";
@@ -28,6 +29,8 @@ std::string Lexer::getCurrentTokenStr() {
         case SEMICOLON : return "SEMICOLON";
         case L_PAR : return "L_PAR";
         case R_PAR : return "R_PAR";
+        case L_BRACKET : return "L_BRACKET";
+        case R_BRACKET : return "R_BRACKET";
         case _EOF_ : return "EOF";
         default : throw new LexerException("Unknown Symbol");
     }
