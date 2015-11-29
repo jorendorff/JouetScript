@@ -48,6 +48,8 @@ void Lexer::save() {
 };
 
 void Lexer::saveAndNext() {
+    if (this->currentChr() == '\\')
+        end_position++;
     this->save();
     this->next();
 };
@@ -158,6 +160,7 @@ void Lexer::nextToken() {
         case ')' : token = R_PAR;       this->saveAndNext(); return;
         case '{' : token = L_BRACKET;   this->saveAndNext(); return;
         case '}' : token = R_BRACKET;   this->saveAndNext(); return;
+        case ';' : token = SEMICOLON;   this->saveAndNext(); return;
     }
 
     while (this->currentChr() != '\0')

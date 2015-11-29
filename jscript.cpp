@@ -109,19 +109,22 @@ JSValuePtr JScript::base() {
         val = JSValuePtr(new JSValue(lexer.substr, JSVALUE_STRING));
         return val;
     }
+
     lexer.error("invalid symbol");
 };
 
 JSValuePtr JScript::execute(std::string line) {
     JSValuePtr result = JSValuePtr(new JSValue());
-    lexer.load(line);
-    lexer.token = EMPTY;
+    if (line.length() > 0) lexer.load(line);
     while (true) {
         lexer.nextToken();
-        if (lexer.token == _EOF_) break;
+        if (lexer.token == _EOF_) {
+            lexer.reset();
+            break;
+        }
+        if (lexer.token == SEMICOLON) break;
         result = this->base();
     }
-    lexer.reset();
     return result;
 }
 
