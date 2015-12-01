@@ -23,10 +23,12 @@ class JSValue {
         JSValue(std::string, JSVALUE_FLAGS);
         JSValue(int, JSVALUE_FLAGS);
         JSValue(float, JSVALUE_FLAGS);
+        JSValue(bool, JSVALUE_FLAGS);
 
         int getInt();
         float getFloat();
         std::string getString();
+        bool getBool();
 
         bool isInt()        { return (flags & JSVALUE_INT) != 0; };
         bool isFloat()      { return (flags & JSVALUE_FLOAT) != 0; };

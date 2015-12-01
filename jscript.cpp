@@ -51,6 +51,11 @@ void JScript::assignment() {
     cxt.addChild(symbol);
 };
 
+JSValuePtr JScript::ifStatement() {
+    JSValuePtr val;
+    return val;
+};
+
 JSValuePtr JScript::defineLambdaFunction() {
     std::vector<std::string> arguments;
     lexer.nextToken();
@@ -104,6 +109,10 @@ JSValuePtr JScript::base() {
         this->defineFunction();
         return val;
     };
+
+    if (lexer.match(IF)) {
+        return this->ifStatement();
+    }
 
     if (lexer.match(VAR)) {
         lexer.nextToken();
@@ -159,6 +168,12 @@ JSValuePtr JScript::base() {
     if (lexer.match(STRING)) {
         val = JSValuePtr(new JSValue(lexer.substr, JSVALUE_STRING));
         return val;
+    }
+
+    if (lexer.match(BOOL)) {
+        if (lexer.substr == "true")
+            return JSValuePtr(new JSValue(true, JSVALUE_BOOL));
+        return JSValuePtr(new JSValue(false, JSVALUE_BOOL));
     }
 
     lexer.error("invalid symbol (" + lexer.substr + ")");

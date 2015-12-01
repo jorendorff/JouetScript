@@ -38,6 +38,16 @@ std::string JSValue::getString() {
     return data;
 }
 
+JSValue::JSValue(bool data, JSVALUE_FLAGS flags) {
+    this->intData = data ? 1 : 0;
+    this->flags = flags;
+    this->marked = false;
+};
+
+bool JSValue::getBool() {
+    return this->intData ? true : false;
+}
+
 std::string JSValue::str() {
     std::ostringstream out;
     if (this->isInt()) {
@@ -46,6 +56,8 @@ std::string JSValue::str() {
         out << this->getFloat();
     } else if (this->isString()) {
         out << this->getString();
+    } else if (this->isBool()) {
+        out << this->getBool() ? "true" : "false";
     } else if (this->isFunction()) {
         out << "<function: " << this->getString() << " | args: ";
         for (auto arg: this->arguments) {
