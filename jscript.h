@@ -15,9 +15,11 @@ class JScript {
         JSValuePtr callFunction(JSValuePtr&);
 
         /* parsing functions */
+        JSValuePtr boolean();
         JSValuePtr digit();
         JSValuePtr factor();
         JSValuePtr mathExp(JSValuePtr &start);
+        JSValuePtr ifStatement();
         void assignment();
         void defineFunction();
         JSValuePtr defineLambdaFunction();

@@ -9,6 +9,7 @@ enum JSVALUE_FLAGS {
     JSVALUE_INT         = 2,
     JSVALUE_FLOAT       = 4,
     JSVALUE_FUNCTION    = 8,
+    JSVALUE_BOOL        = 16,
 };
 
 class JSValue;
@@ -30,6 +31,7 @@ class JSValue {
         bool isInt()        { return (flags & JSVALUE_INT) != 0; };
         bool isFloat()      { return (flags & JSVALUE_FLOAT) != 0; };
         bool isString()     { return (flags & JSVALUE_STRING) != 0; };
+        bool isBool()       { return (flags & JSVALUE_BOOL) != 0; };
         bool isUndefined()  { return (flags & JSVALUE_UNDEFINED) != 0; };
         bool isFunction()   { return (flags & JSVALUE_FUNCTION) != 0; };
 

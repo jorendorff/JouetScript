@@ -65,6 +65,8 @@ T mathOp(T a, T b, char op) {
         case '*' : return a * b;
         case '-' : return a - b;
         case '/' : return a / b;
+        case '^' : return (char)a ^ (char)b;
+        case '&' : return (char)a & (char)b;
     }
     throw;
 };

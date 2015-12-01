@@ -159,7 +159,9 @@ void Lexer::nextToken() {
     if (this->currentChr() == '+' or
         this->currentChr() == '-' or
         this->currentChr() == '*' or
-        this->currentChr() == '/') {
+        this->currentChr() == '/' or
+        this->currentChr() == '^' or
+        this->currentChr() == '&') {
         token = OPERATOR;
         this->saveAndNext();
         return;
