@@ -35,6 +35,10 @@ class JSValue {
 
         std::string str();
         JSValuePtr arithmetic(JSValuePtr, char);
+        /* execute data as a function */
+        JSValuePtr execute();
+        /* named arguments for functions */
+        std::vector<std::string> arguments;
 
 
     protected:
@@ -43,16 +47,13 @@ class JSValue {
         int intData;
         float floatData;
         bool marked;
-
-        /* execute data as a function */
-        JSValuePtr execute();
 };
 
 
 class JSValueHandle {
 
     public:
-        JSValueHandle(JSValue *value, std::string name);
+        JSValueHandle(JSValuePtr, std::string);
         JSValuePtr value;
         std::string name;
 };

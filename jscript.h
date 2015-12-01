@@ -5,11 +5,14 @@
 
 class JScript {
     Lexer lexer;
-    JSContext cxt;
 
     public:
+        JSContext &cxt;
+
         /* determine whether our buffer is empty */
+        JScript(JSContext&);
         int bytesRemaining() { return lexer.buffer.size(); }
+        JSValuePtr callFunction(JSValuePtr&);
 
         /* parsing functions */
         JSValuePtr digit();

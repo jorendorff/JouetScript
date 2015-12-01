@@ -38,11 +38,6 @@ std::string JSValue::getString() {
     return data;
 }
 
-JSValuePtr JSValue::execute() {
-    JSValuePtr val;
-    return val;
-};
-
 std::string JSValue::str() {
     std::ostringstream out;
     if (this->isInt()) {
@@ -52,7 +47,11 @@ std::string JSValue::str() {
     } else if (this->isString()) {
         out << this->getString();
     } else if (this->isFunction()) {
-        out << "<function: " << this->getString() << ">";
+        out << "<function: " << this->getString() << " | args: ";
+        for (auto arg: this->arguments) {
+            out << arg << " ";
+        }
+        out << ">";
     } else if (this->isUndefined()) {
         out << "undefined";
     }
@@ -87,9 +86,9 @@ JSValuePtr JSValue::arithmetic(JSValuePtr value, char op) {
     throw;
 };
 
-JSValueHandle::JSValueHandle(JSValue *value, const std::string name) {
+JSValueHandle::JSValueHandle(JSValuePtr value, std::string name) {
     this->name = name;
-    this->value = JSValuePtr(value);
+    this->value = value;
 }
 
 JSContext::JSContext() {
@@ -99,7 +98,6 @@ JSContext::JSContext() {
 };
 
 void JSContext::pushScope() {
-    JSScopeChain = std::vector<std::vector<JSValueHandlePtr>>();
     JSScopeChain.push_back(std::vector<JSValueHandlePtr>());
 };
 

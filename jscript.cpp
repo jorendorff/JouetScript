@@ -51,12 +51,37 @@ void JScript::assignment() {
     lexer.nextToken();
     JSValuePtr value = this->base();
     cxt.JSValueCache.push_back(value);
-    JSValueHandlePtr symbol = JSValueHandlePtr(new JSValueHandle(&*value, name));
+    JSValueHandlePtr symbol = JSValueHandlePtr(new JSValueHandle(value, name));
     cxt.addChild(symbol);
 };
 
 JSValuePtr JScript::defineLambdaFunction() {
-    JSValuePtr val;
+    std::vector<std::string> arguments;
+    lexer.nextToken();
+    // collect arguments
+    while (!lexer.match(R_PAR)) {
+        if (lexer.match(IDENTIFIER)) {
+            arguments.push_back(lexer.substr);
+            lexer.nextToken();
+            if (lexer.match(COMMA))
+                lexer.nextToken();
+        } else {
+            lexer.error();
+        }
+    }
+    lexer.nextToken();
+    if (!lexer.match(L_CBRACKET))
+        lexer.error();
+    std::string function_body;
+    lexer.nextToken();
+    while (!lexer.match(R_CBRACKET)) {
+        function_body = function_body + lexer.substr;
+        if (lexer.currentChr() == ' ')
+            function_body = function_body + " ";
+        lexer.nextToken();
+    }
+    JSValuePtr val = JSValuePtr(new JSValue(function_body, JSVALUE_FUNCTION));
+    val->arguments = arguments;
     return val;
 };
 
@@ -97,8 +122,12 @@ JSValuePtr JScript::base() {
             this->assignment();
             return val;
         }
-
         val = JSValuePtr(tmp->value);
+
+        if (lexer.match(L_PAR)) {
+           return this->callFunction(val);
+        }
+
         if (lexer.match(OPERATOR))
             return this->mathExp(val);
 
@@ -131,7 +160,7 @@ JSValuePtr JScript::base() {
         return val;
     }
 
-    lexer.error("invalid symbol");
+    lexer.error("invalid symbol (" + lexer.substr + ")");
 };
 
 JSValuePtr JScript::execute(std::string line) {
@@ -149,8 +178,40 @@ JSValuePtr JScript::execute(std::string line) {
     return result;
 }
 
+JSValuePtr JScript::callFunction(JSValuePtr &func) {
+    std::vector<JSValuePtr> arguments;
+    while (!lexer.match(R_PAR)) {
+        lexer.nextToken();
+        arguments.push_back(this->base());
+        lexer.nextToken();
+        if (!lexer.match(COMMA) and !lexer.match(R_PAR))
+            lexer.error();
+    }
+    lexer.nextToken();
+    // initialize the local scope and variables
+    this->cxt.pushScope();
+    for (int i = 0; i < func->arguments.size(); i++) {
+        if (i < arguments.size()) {
+            this->cxt.addChild(JSValueHandlePtr(new JSValueHandle(arguments[i], func->arguments[i])));
+        } else {
+            this->cxt.addChild(JSValueHandlePtr(new JSValueHandle(JSValuePtr(), func->arguments[i])));
+        }
+    };
+    JScript tmpJScript(this->cxt);
+    JSValuePtr val = this->execute(func->getString());
+    // kill the function scope
+    this->cxt.popScope();
+    return val;
+};
+
+JScript::JScript(JSContext &cxt) : cxt(cxt) {
+    Lexer lexer;
+    this->cxt = cxt;
+}
+
 int main() {
-    JScript jscript;
+    JSContext cxt;
+    JScript jscript(cxt);
     for (;;) {
         try {
             /* only load new data if the lexer buffer is empty */

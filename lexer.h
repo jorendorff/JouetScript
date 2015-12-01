@@ -16,8 +16,8 @@ enum TOKEN_TYPES {
     SEMICOLON,
     L_PAR,
     R_PAR,
-    L_BRACKET,
-    R_BRACKET,
+    L_CBRACKET,
+    R_CBRACKET,
     COMMA,
     _EOF_
 };

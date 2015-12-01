@@ -29,8 +29,8 @@ std::string Lexer::getCurrentTokenStr() {
         case SEMICOLON  : return "SEMICOLON";
         case L_PAR      : return "L_PAR";
         case R_PAR      : return "R_PAR";
-        case L_BRACKET  : return "L_BRACKET";
-        case R_BRACKET  : return "R_BRACKET";
+        case L_CBRACKET : return "L_CBRACKET";
+        case R_CBRACKET : return "R_CBRACKET";
         case COMMA      : return "COMMA";
         case _EOF_      : return "EOF";
     }
@@ -155,13 +155,13 @@ void Lexer::nextToken() {
 
     /* OTHER SYMBOLS */
     switch (this->currentChr()) {
-        case '=' : token = EQUALS;      this->next(); return;
-        case '(' : token = L_PAR;       this->next(); return;
-        case ')' : token = R_PAR;       this->next(); return;
-        case '{' : token = L_BRACKET;   this->next(); return;
-        case '}' : token = R_BRACKET;   this->next(); return;
-        case ';' : token = SEMICOLON;   this->next(); return;
-        case ',' : token = COMMA;      this->next(); return;
+        case '=' : token = EQUALS;      this->saveAndNext(); return;
+        case '(' : token = L_PAR;       this->saveAndNext(); return;
+        case ')' : token = R_PAR;       this->saveAndNext(); return;
+        case '{' : token = L_CBRACKET;  this->saveAndNext(); return;
+        case '}' : token = R_CBRACKET;  this->saveAndNext(); return;
+        case ';' : token = SEMICOLON;   this->saveAndNext(); return;
+        case ',' : token = COMMA;       this->saveAndNext(); return;
     }
 
     while (this->currentChr() != '\0')
