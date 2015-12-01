@@ -191,7 +191,7 @@ void Lexer::reset() {
 };
 
 void Lexer::error() {
-    throw new LexerException("expected " + getCurrentTokenStr(), end_position);
+    throw new LexerException("unexpected " + getCurrentTokenStr(), end_position);
 }
 
 void Lexer::error(const std::string msg) {
