@@ -16,4 +16,4 @@ JSValue.cpp:
 Every value in the language is a JSValue, this includes strings, integers, functions, objects, arrays, etc... This file also includes JSContext: an object which stores scopes and the global value cache, used in garbage collection, and JSValueHandle: a simple container used to point back at JSValues with a name. These are stored in scopes, think of them as links or variables.
 
 JScript.cpp:
-The parser (recursive descent), interpreter, and repl live here.
+The parser, interpreter, and repl live here.
