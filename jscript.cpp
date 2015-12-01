@@ -86,6 +86,14 @@ JSValuePtr JScript::defineLambdaFunction() {
 };
 
 void JScript::defineFunction() {
+    std::string funcName = lexer.substr;
+    lexer.nextToken();
+    if (!lexer.match(L_PAR))
+        lexer.error();
+    JSValuePtr value = this->defineLambdaFunction();
+    cxt.JSValueCache.push_back(value);
+    JSValueHandlePtr symbol = JSValueHandlePtr(new JSValueHandle(value, funcName));
+    cxt.addChild(symbol);
 };
 
 JSValuePtr JScript::base() {
@@ -168,11 +176,11 @@ JSValuePtr JScript::execute(std::string line) {
     lexer.load(line);
     while (true) {
         lexer.nextToken();
+        while (lexer.token == SEMICOLON) lexer.nextToken();
         if (lexer.token == _EOF_) {
             lexer.reset();
             break;
         }
-        if (lexer.token == SEMICOLON) break;
         result = this->base();
     }
     return result;
