@@ -13,7 +13,7 @@ Lexer::Lexer() {
     prev_position = 0;
 }
 
-std::string Lexer::getCurrentTokenStr() {
+std::string Lexer::getTokenStr(TOKEN_TYPES token) {
     switch (token) {
         case EMPTY      : return "EMPTY";
         case IDENTIFIER : return "IDENTIFIER";
@@ -34,6 +34,10 @@ std::string Lexer::getCurrentTokenStr() {
         case COMMA      : return "COMMA";
         case _EOF_      : return "EOF";
     }
+};
+
+std::string Lexer::getCurrentTokenStr() {
+    return this->getTokenStr(this->token);
 }
 
 void Lexer::next() {
@@ -174,6 +178,15 @@ bool Lexer::match(TOKEN_TYPES type) {
     if (token == type)
         return true;
     return false;
+};
+
+bool Lexer::matchOrFail(TOKEN_TYPES type) {
+    if (token != type)
+        throw new LexerException(
+            "expected " + getTokenStr(type) + " but found " + this->getCurrentTokenStr(),
+            end_position
+        );
+    return true;
 };
 
 void Lexer::load(std::string &line) {

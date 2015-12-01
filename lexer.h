@@ -49,6 +49,7 @@ class Lexer {
         std::string substr;
         std::string prev_substr;
 
+        std::string getTokenStr(TOKEN_TYPES token);
         std::string getCurrentTokenStr();
         char currentChr();
         char peek();
@@ -61,6 +62,7 @@ class Lexer {
         bool isAlpha();
         bool isDigit();
         bool match(TOKEN_TYPES type);
+        bool matchOrFail(TOKEN_TYPES type);
         void skipWhiteSpace();
         void error();
         void error(const std::string);

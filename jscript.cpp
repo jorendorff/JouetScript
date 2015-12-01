@@ -25,8 +25,7 @@ JSValuePtr JScript::factor() {
     lexer.nextToken();
     r = this->base();
     lexer.nextToken();
-    if (!lexer.match(R_PAR))
-        lexer.error();
+    lexer.matchOrFail(R_PAR);
     return r;
 };
 
@@ -39,14 +38,11 @@ JSValuePtr JScript::mathExp(JSValuePtr &start) {
 };
 
 void JScript::assignment() {
-    if (!lexer.match(IDENTIFIER))
-        lexer.error("invalid assignment, identifier expected");
-
+    lexer.matchOrFail(IDENTIFIER);
     std::string name = lexer.substr;
 
     lexer.nextToken();
-    if (!lexer.match(EQUALS))
-        lexer.error();
+    lexer.matchOrFail(EQUALS);
 
     lexer.nextToken();
     JSValuePtr value = this->base();
@@ -66,12 +62,11 @@ JSValuePtr JScript::defineLambdaFunction() {
             if (lexer.match(COMMA))
                 lexer.nextToken();
         } else {
-            lexer.error();
+            lexer.error("expected IDENTIFIER, COMMA, or R_PAR while parsing function arguments but found " + lexer.getCurrentTokenStr());
         }
     }
     lexer.nextToken();
-    if (!lexer.match(L_CBRACKET))
-        lexer.error();
+    lexer.matchOrFail(L_CBRACKET);
     std::string function_body;
     lexer.nextToken();
     while (!lexer.match(R_CBRACKET)) {
@@ -88,8 +83,7 @@ JSValuePtr JScript::defineLambdaFunction() {
 void JScript::defineFunction() {
     std::string funcName = lexer.substr;
     lexer.nextToken();
-    if (!lexer.match(L_PAR))
-        lexer.error();
+    lexer.matchOrFail(L_PAR);
     JSValuePtr value = this->defineLambdaFunction();
     cxt.JSValueCache.push_back(value);
     JSValueHandlePtr symbol = JSValueHandlePtr(new JSValueHandle(value, funcName));
@@ -106,8 +100,7 @@ JSValuePtr JScript::base() {
         lexer.nextToken();
         if (lexer.match(L_PAR))
             return this->defineLambdaFunction();
-        if (!lexer.match(IDENTIFIER))
-            lexer.error();
+        lexer.matchOrFail(IDENTIFIER);
         this->defineFunction();
         return val;
     };
@@ -188,12 +181,14 @@ JSValuePtr JScript::execute(std::string line) {
 
 JSValuePtr JScript::callFunction(JSValuePtr &func) {
     std::vector<JSValuePtr> arguments;
+    lexer.nextToken();
     while (!lexer.match(R_PAR)) {
-        lexer.nextToken();
         arguments.push_back(this->base());
         lexer.nextToken();
         if (!lexer.match(COMMA) and !lexer.match(R_PAR))
-            lexer.error();
+            lexer.error("expected COMMA, or R_PAR while parsing function arguments but found " + lexer.getCurrentTokenStr());
+        if (lexer.match(COMMA))
+            lexer.nextToken();
     }
     lexer.nextToken();
     // initialize the local scope and variables
