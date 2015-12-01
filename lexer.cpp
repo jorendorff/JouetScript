@@ -22,6 +22,7 @@ std::string Lexer::getTokenStr(TOKEN_TYPES token) {
         case DIGIT      : return "DIGIT";
         case INT        : return "INT";
         case FLOAT      : return "FLOAT";
+        case BOOL       : return "BOOL";
         case ALPHA      : return "ALPHA";
         case STRING     : return "STRING";
         case EQUALS     : return "EQUALS";
@@ -32,6 +33,7 @@ std::string Lexer::getTokenStr(TOKEN_TYPES token) {
         case L_CBRACKET : return "L_CBRACKET";
         case R_CBRACKET : return "R_CBRACKET";
         case COMMA      : return "COMMA";
+        case IF         : return "IF";
         case _EOF_      : return "EOF";
     }
 };
@@ -115,6 +117,12 @@ void Lexer::nextToken() {
         } else if (substr == "function") {
             token = FUNCTION;
             return;
+        } else if (substr == "true" || substr == "false") {
+            token = BOOL;
+            return;
+        } else if (substr == "if") {
+            token = IF;
+            return;
         } else {
             token = IDENTIFIER;
             return;
@@ -157,7 +165,7 @@ void Lexer::nextToken() {
         return;
     }
 
-    /* OTHER SYMBOLS */
+    /* SINGLE CHAR SYMBOLS */
     switch (this->currentChr()) {
         case '=' : token = EQUALS;      this->saveAndNext(); return;
         case '(' : token = L_PAR;       this->saveAndNext(); return;

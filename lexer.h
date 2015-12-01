@@ -9,6 +9,7 @@ enum TOKEN_TYPES {
     DIGIT,
     INT,
     FLOAT,
+    BOOL,
     ALPHA,
     STRING,
     EQUALS,
@@ -19,6 +20,7 @@ enum TOKEN_TYPES {
     L_CBRACKET,
     R_CBRACKET,
     COMMA,
+    IF,
     _EOF_
 };
 
