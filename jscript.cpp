@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 #include <string.h>
+#include <fstream>
+#include <sstream>
 
 #include "lexer.h"
 #include "jscript.h"
@@ -293,15 +295,28 @@ JScript::JScript(JSContext &cxt) : cxt(cxt) {
     this->cxt = cxt;
 }
 
-int main() {
+int main(int argc, char *argv[]) {
     JSContext cxt;
     JScript jscript(cxt);
+    if (argc > 1) {
+        try {
+            std::ifstream t(argv[1]);
+            std::stringstream buffer;
+            buffer << t.rdbuf();
+            std::cout<<buffer.str();
+            std::cout << jscript.execute(buffer.str())->str() << std::endl;
+        } catch (LexerException *ex) {
+            std::cout << ex->msg << std::endl;
+            return 1;
+        };
+        return 0;
+    }
     for (;;) {
         try {
             /* only load new data if the lexer buffer is empty */
             if (jscript.bytesRemaining() <= 0) {
                 char data[MAX_LINE_LENGTH];
-                std::cout << "JouetScript$ ";
+                std::cout << "JouetScript$> ";
                 std::cin.getline(data, MAX_LINE_LENGTH);
                 std::cout << jscript.execute(data)->str() << std::endl;
             } else {

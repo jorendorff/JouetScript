@@ -72,6 +72,7 @@ char Lexer::peek() {
 void Lexer::skipWhiteSpace() {
     while (this->currentChr() == ' ' or
             this->currentChr() == '\t' or
+            this->currentChr() == '\r' or
             this->currentChr() == '\n')
         this->next();
 };
