@@ -72,7 +72,6 @@ std::string JSValue::str() {
 
 template <typename T>
 T mathOp(T a, T b, char op) {
-    printf("%i %c %i\n", a, op, b);
     switch (op) {
         case '+' : return a + b;
         case '*' : return a * b;
