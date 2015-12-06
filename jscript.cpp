@@ -181,11 +181,12 @@ JSValuePtr JScript::base() {
 
         lexer.nextToken();
         if (lexer.match(EQUALS)) {
-            lexer.prevToken();
-            this->assignment();
+            lexer.nextToken();
+            tmp->value = this->base();
             return JSValuePtr(new JSValue());
         }
-        val = JSValuePtr(tmp->value);
+
+        val = tmp->value;
 
         if (lexer.match(L_PAR)) {
            return this->callFunction(val);
