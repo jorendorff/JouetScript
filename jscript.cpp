@@ -128,14 +128,18 @@ JSValuePtr JScript::defineLambdaFunction() {
     std::string function_body;
     lexer.nextToken();
     int cbrackets = 1;
-    for (;;) {
+    while (!lexer.match(_EOF_)) {
         if (lexer.match(L_CBRACKET))
             cbrackets++;
         if (lexer.match(R_CBRACKET))
-            cbrackets++;
+            cbrackets--;
         if (cbrackets <= 0)
             break;
-        function_body = function_body + lexer.substr;
+        if (lexer.match(STRING)) { // add quotes
+            function_body = function_body + '"' + lexer.substr + '"';
+        } else {
+            function_body = function_body + lexer.substr;
+        }
         if (lexer.currentChr() == ' ')
             function_body = function_body + " ";
         lexer.nextToken();
