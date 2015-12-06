@@ -162,6 +162,9 @@ void JScript::defineFunction() {
 JSValuePtr JScript::base() {
     JSValuePtr val;
 
+    /* IGNORE SEMICOLONS */
+    while (lexer.token == SEMICOLON) lexer.nextToken();
+
     /* DEFINE FUNCTION */
     if (lexer.match(FUNCTION)) {
         /* we'll either define or return a function depending
@@ -200,7 +203,7 @@ JSValuePtr JScript::base() {
         val = tmp->value;
 
         if (lexer.match(L_PAR)) {
-           return this->callFunction(val);
+            return this->callFunction(val);
         }
 
         if (lexer.match(OPERATOR))
@@ -249,7 +252,6 @@ JSValuePtr JScript::execute(std::string line) {
     lexer.load(line);
     while (true) {
         lexer.nextToken();
-        while (lexer.token == SEMICOLON) lexer.nextToken();
         if (lexer.token == _EOF_) {
             lexer.reset();
             break;
@@ -270,7 +272,6 @@ JSValuePtr JScript::callFunction(JSValuePtr &func) {
         if (lexer.match(COMMA))
             lexer.nextToken();
     }
-    lexer.nextToken();
     // initialize the local scope and variables
     this->cxt.pushScope();
     for (int i = 0; i < func->arguments.size(); i++) {
@@ -281,7 +282,7 @@ JSValuePtr JScript::callFunction(JSValuePtr &func) {
         }
     };
     JScript tmpJScript(this->cxt);
-    JSValuePtr val = this->execute(func->getString());
+    JSValuePtr val = tmpJScript.execute(func->getString());
     // kill the function scope
     this->cxt.popScope();
     return val;
@@ -300,7 +301,7 @@ int main() {
             /* only load new data if the lexer buffer is empty */
             if (jscript.bytesRemaining() <= 0) {
                 char data[MAX_LINE_LENGTH];
-                std::cout << "> ";
+                std::cout << "JouetScript$ ";
                 std::cin.getline(data, MAX_LINE_LENGTH);
                 std::cout << jscript.execute(data)->str() << std::endl;
             } else {
