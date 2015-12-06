@@ -164,9 +164,6 @@ void JScript::defineFunction() {
 JSValuePtr JScript::base() {
     JSValuePtr val;
 
-    /* IGNORE SEMICOLONS */
-    while (lexer.token == SEMICOLON) lexer.nextToken();
-
     /* DEFINE FUNCTION */
     if (lexer.match(FUNCTION)) {
         /* we'll either define or return a function depending
@@ -254,6 +251,8 @@ JSValuePtr JScript::execute(std::string line) {
     lexer.load(line);
     while (true) {
         lexer.nextToken();
+        /* IGNORE SEMICOLONS */
+        while (lexer.token == SEMICOLON) lexer.nextToken();
         if (lexer.token == _EOF_) {
             lexer.reset();
             break;
@@ -315,7 +314,7 @@ int main(int argc, char *argv[]) {
             /* only load new data if the lexer buffer is empty */
             if (jscript.bytesRemaining() <= 0) {
                 char data[MAX_LINE_LENGTH];
-                std::cout << "JouetScript$> ";
+                std::cout << "JouetScript$ ";
                 std::cin.getline(data, MAX_LINE_LENGTH);
                 std::cout << jscript.execute(data)->str() << std::endl;
             } else {
