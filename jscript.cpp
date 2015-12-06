@@ -303,7 +303,6 @@ int main(int argc, char *argv[]) {
             std::ifstream t(argv[1]);
             std::stringstream buffer;
             buffer << t.rdbuf();
-            std::cout<<buffer.str();
             std::cout << jscript.execute(buffer.str())->str() << std::endl;
         } catch (LexerException *ex) {
             std::cout << ex->msg << std::endl;
