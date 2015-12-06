@@ -34,6 +34,7 @@ std::string Lexer::getTokenStr(TOKEN_TYPES token) {
         case R_CBRACKET : return "R_CBRACKET";
         case COMMA      : return "COMMA";
         case IF         : return "IF";
+        case ELSE       : return "ELSE";
         case _EOF_      : return "EOF";
     }
 };
@@ -122,6 +123,9 @@ void Lexer::nextToken() {
             return;
         } else if (substr == "if") {
             token = IF;
+            return;
+        } else if (substr == "else") {
+            token = ELSE;
             return;
         } else {
             token = IDENTIFIER;

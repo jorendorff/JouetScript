@@ -12,16 +12,30 @@
 #define MAX_LINE_LENGTH 2048
 
 JSValuePtr JScript::digit() {
-    if (lexer.match(INT)) {
-        return JSValuePtr(new JSValue(std::stoi(lexer.substr), JSVALUE_INT));
-    } else if (lexer.match(FLOAT)) {
-        return JSValuePtr(new JSValue(std::stof(lexer.substr), JSVALUE_FLOAT));
+    JSValuePtr val, zero_val;
+    char op; // if we see this, we need to do arithmetic on our value
+    if (lexer.match(OPERATOR)) {
+        lexer.backup();
+        op = lexer.currentChr();
+        lexer.next();
+        zero_val = JSValuePtr(new JSValue(0, JSVALUE_INT));
+        lexer.nextToken();
     }
-    return NULL;
+    if (lexer.match(INT)) {
+        val = JSValuePtr(new JSValue(std::stoi(lexer.substr), JSVALUE_INT));
+    } else if (lexer.match(FLOAT)) {
+        val = JSValuePtr(new JSValue(std::stof(lexer.substr), JSVALUE_FLOAT));
+    }
+    if (op && val) {
+        zero_val = JSValuePtr(new JSValue(0, JSVALUE_INT));
+        val = zero_val->arithmetic(val, op);
+    }
+    return val;
 };
 
 JSValuePtr JScript::factor() {
     JSValuePtr r;
+    lexer.matchOrFail(L_PAR);
     lexer.nextToken();
     r = this->base();
     lexer.nextToken();
@@ -51,8 +65,47 @@ void JScript::assignment() {
     cxt.addChild(symbol);
 };
 
-JSValuePtr JScript::ifStatement() {
+JSValuePtr JScript::block() {
     JSValuePtr val;
+    lexer.matchOrFail(L_CBRACKET);
+    lexer.nextToken();
+    if (lexer.match(R_CBRACKET))
+        return val;
+    cxt.pushScope();
+    val = this->base();
+    cxt.popScope();
+    lexer.nextToken();
+    lexer.matchOrFail(R_CBRACKET);
+    return val;
+};
+
+JSValuePtr JScript::ifStatement() {
+    lexer.matchOrFail(IF);
+    lexer.nextToken();
+    JSValuePtr if_val, val;
+    if_val = this->factor();
+    lexer.nextToken();
+    if (if_val->getBool()) {
+        val = this->block();
+        lexer.nextToken();
+        if (lexer.match(ELSE)) {
+            lexer.nextToken();
+            lexer.matchOrFail(L_CBRACKET);
+            while (!lexer.match(R_CBRACKET))
+                lexer.nextToken();
+        }
+    } else {
+        while (!lexer.match(R_CBRACKET))
+            lexer.nextToken();
+        lexer.nextToken();
+        if (lexer.match(ELSE)) {
+            lexer.nextToken();
+            val = this->block();
+        }
+    }
+
+    if (!val)
+        val = JSValuePtr(new JSValue());
     return val;
 };
 
@@ -96,7 +149,7 @@ void JScript::defineFunction() {
 };
 
 JSValuePtr JScript::base() {
-    JSValuePtr val = JSValuePtr(new JSValue());
+    JSValuePtr val;
 
     /* DEFINE FUNCTION */
     if (lexer.match(FUNCTION)) {
@@ -107,7 +160,7 @@ JSValuePtr JScript::base() {
             return this->defineLambdaFunction();
         lexer.matchOrFail(IDENTIFIER);
         this->defineFunction();
-        return val;
+        return JSValuePtr(new JSValue());
     };
 
     if (lexer.match(IF)) {
@@ -117,7 +170,7 @@ JSValuePtr JScript::base() {
     if (lexer.match(VAR)) {
         lexer.nextToken();
         this->assignment();
-        return val;
+        return JSValuePtr(new JSValue());
     }
 
     if (lexer.match(IDENTIFIER)) {
@@ -130,7 +183,7 @@ JSValuePtr JScript::base() {
         if (lexer.match(EQUALS)) {
             lexer.prevToken();
             this->assignment();
-            return val;
+            return JSValuePtr(new JSValue());
         }
         val = JSValuePtr(tmp->value);
 
@@ -155,7 +208,7 @@ JSValuePtr JScript::base() {
         return val;
     }
 
-    if (lexer.match(INT) or lexer.match(FLOAT)) {
+    if (lexer.match(INT) or lexer.match(FLOAT) or lexer.match(OPERATOR)) {
         val = this->digit();
         lexer.nextToken();
         if (lexer.match(OPERATOR)) {

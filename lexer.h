@@ -21,6 +21,7 @@ enum TOKEN_TYPES {
     R_CBRACKET,
     COMMA,
     IF,
+    ELSE,
     _EOF_
 };
 

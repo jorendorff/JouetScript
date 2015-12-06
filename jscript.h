@@ -17,6 +17,7 @@ class JScript {
         /* parsing functions */
         JSValuePtr boolean();
         JSValuePtr digit();
+        JSValuePtr block();
         JSValuePtr factor();
         JSValuePtr mathExp(JSValuePtr &start);
         JSValuePtr ifStatement();
