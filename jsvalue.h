@@ -20,27 +20,28 @@ class JSValue {
 
     public:
         JSValue();
-        JSValue(std::string, JSVALUE_FLAGS);
-        JSValue(int, JSVALUE_FLAGS);
-        JSValue(float, JSVALUE_FLAGS);
-        JSValue(bool, JSVALUE_FLAGS);
-
-        int getInt();
-        float getFloat();
-        std::string getString();
-        bool getBool();
-
-        bool isInt()        { return (flags & JSVALUE_INT) != 0; };
-        bool isFloat()      { return (flags & JSVALUE_FLOAT) != 0; };
-        bool isString()     { return (flags & JSVALUE_STRING) != 0; };
-        bool isBool()       { return (flags & JSVALUE_BOOL) != 0; };
         bool isUndefined()  { return (flags & JSVALUE_UNDEFINED) != 0; };
-        bool isFunction()   { return (flags & JSVALUE_FUNCTION) != 0; };
+
+        JSValue(int, JSVALUE_FLAGS);
+        int getInt();
+        bool isInt()        { return (flags & JSVALUE_INT) != 0; };
+
+        JSValue(float, JSVALUE_FLAGS);
+        float getFloat();
+        bool isFloat()      { return (flags & JSVALUE_FLOAT) != 0; };
+
+        JSValue(std::string, JSVALUE_FLAGS);
+        std::string getString();
+        bool isString()     { return (flags & JSVALUE_STRING) != 0; };
+
+        JSValue(bool, JSVALUE_FLAGS);
+        bool getBool();
+        bool isBool()       { return (flags & JSVALUE_BOOL) != 0; };
 
         std::string str();
         JSValuePtr arithmetic(JSValuePtr, char);
-        /* execute data as a function */
-        JSValuePtr execute();
+
+        bool isFunction()   { return (flags & JSVALUE_FUNCTION) != 0; };
         /* named arguments for functions */
         std::vector<std::string> arguments;
 
@@ -54,25 +55,32 @@ class JSValue {
 };
 
 
+/**
+ * Named pointers to JSValues, i.e. variables
+ **/
 class JSValueHandle {
 
     public:
-        JSValueHandle(JSValuePtr, std::string);
+        JSValueHandle(JSValuePtr value, std::string name);
         JSValuePtr value;
         std::string name;
 };
 
 typedef std::shared_ptr<JSValueHandle> JSValueHandlePtr;
 
+/**
+ * Manages the memory space of one or more execution environments.
+ **/
 class JSContext {
 
     public:
         JSContext();
-        /* Adds a child to the _current_ scope */
-        void addChild(JSValueHandlePtr value);
-        JSValueHandlePtr findChild(const std::string name);
         void pushScope();
         void popScope();
+        /* Adds a child to the _current_ scope */
+        void addChild(JSValueHandlePtr value);
+        /* Find a child by name */
+        JSValueHandlePtr findChild(const std::string name);
 
     protected:
         std::vector<JSValuePtr> JSValueCache;

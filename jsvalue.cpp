@@ -10,7 +10,7 @@ JSValue::JSValue() {
 
 JSValue::JSValue(int data, JSVALUE_FLAGS flags) {
     intData = data;
-    flags = flags;
+    this->flags = flags;
     marked = false;
 };
 
@@ -20,7 +20,7 @@ int JSValue::getInt() {
 
 JSValue::JSValue(float data, JSVALUE_FLAGS flags) {
     floatData = data;
-    flags = flags;
+    this->flags = flags;
     marked = false;
 };
 
@@ -29,8 +29,8 @@ float JSValue::getFloat() {
 }
 
 JSValue::JSValue(std::string data, JSVALUE_FLAGS flags) {
-    data = data;
-    flags = flags;
+    this->data = data;
+    this->flags = flags;
     marked = false;
 };
 
@@ -40,7 +40,7 @@ std::string JSValue::getString() {
 
 JSValue::JSValue(bool data, JSVALUE_FLAGS flags) {
     intData = data ? 1 : 0;
-    flags = flags;
+    this->flags = flags;
     marked = false;
 };
 
@@ -101,8 +101,8 @@ JSValuePtr JSValue::arithmetic(JSValuePtr value, char op) {
 };
 
 JSValueHandle::JSValueHandle(JSValuePtr value, std::string name) {
-    name = name;
-    value = value;
+    this->name = name;
+    this->value = value;
 }
 
 JSContext::JSContext() {

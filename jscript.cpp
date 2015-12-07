@@ -9,6 +9,54 @@
 #include "jscript.h"
 #include "jsvalue.h"
 
+JScript::JScript(JSContext &cxt) : cxt(cxt) {
+    Lexer lexer;
+    this->cxt = cxt;
+}
+
+JSValuePtr JScript::execute(std::string line) {
+    JSValuePtr result = JSValuePtr(new JSValue());
+    lexer.load(line);
+    while (true) {
+        lexer.nextToken();
+        /* IGNORE SEMICOLONS */
+        while (lexer.token == SEMICOLON) lexer.nextToken();
+        if (lexer.token == _EOF_) {
+            lexer.reset();
+            break;
+        }
+        result = base();
+    }
+    return result;
+};
+
+JSValuePtr JScript::callFunction(JSValuePtr &func) {
+    std::vector<JSValuePtr> arguments;
+    lexer.nextToken();
+    while (!lexer.match(R_PAR)) {
+        arguments.push_back(base());
+        lexer.nextToken();
+        if (!lexer.match(COMMA) and !lexer.match(R_PAR))
+            lexer.error("expected COMMA, or R_PAR while parsing function arguments but found " + lexer.getCurrentTokenStr());
+        if (lexer.match(COMMA))
+            lexer.nextToken();
+    }
+    // initialize the local scope and variables
+    cxt.pushScope();
+    for (int i = 0; i < func->arguments.size(); i++) {
+        if (i < arguments.size()) {
+            cxt.addChild(JSValueHandlePtr(new JSValueHandle(arguments[i], func->arguments[i])));
+        } else {
+            cxt.addChild(JSValueHandlePtr(new JSValueHandle(JSValuePtr(), func->arguments[i])));
+        }
+    };
+    JScript tmpJScript(cxt);
+    JSValuePtr val = tmpJScript.execute(func->getString());
+    // kill the function scope
+    cxt.popScope();
+    return val;
+};
+
 JSValuePtr JScript::digit() {
     JSValuePtr val, zero_val;
     char op; // if we see this, we need to do arithmetic on our value
@@ -209,7 +257,7 @@ JSValuePtr JScript::base() {
     };
 
     if (lexer.match(L_PAR)) {
-       val = factor();
+        val = factor();
         lexer.nextToken();
         if (lexer.match(OPERATOR)) {
             return mathExp(val);
@@ -242,50 +290,3 @@ JSValuePtr JScript::base() {
     lexer.error("invalid symbol (" + lexer.substr + ")");
 };
 
-JSValuePtr JScript::execute(std::string line) {
-    JSValuePtr result = JSValuePtr(new JSValue());
-    lexer.load(line);
-    while (true) {
-        lexer.nextToken();
-        /* IGNORE SEMICOLONS */
-        while (lexer.token == SEMICOLON) lexer.nextToken();
-        if (lexer.token == _EOF_) {
-            lexer.reset();
-            break;
-        }
-        result = base();
-    }
-    return result;
-}
-
-JSValuePtr JScript::callFunction(JSValuePtr &func) {
-    std::vector<JSValuePtr> arguments;
-    lexer.nextToken();
-    while (!lexer.match(R_PAR)) {
-        arguments.push_back(base());
-        lexer.nextToken();
-        if (!lexer.match(COMMA) and !lexer.match(R_PAR))
-            lexer.error("expected COMMA, or R_PAR while parsing function arguments but found " + lexer.getCurrentTokenStr());
-        if (lexer.match(COMMA))
-            lexer.nextToken();
-    }
-    // initialize the local scope and variables
-    cxt.pushScope();
-    for (int i = 0; i < func->arguments.size(); i++) {
-        if (i < arguments.size()) {
-            cxt.addChild(JSValueHandlePtr(new JSValueHandle(arguments[i], func->arguments[i])));
-        } else {
-            cxt.addChild(JSValueHandlePtr(new JSValueHandle(JSValuePtr(), func->arguments[i])));
-        }
-    };
-    JScript tmpJScript(cxt);
-    JSValuePtr val = tmpJScript.execute(func->getString());
-    // kill the function scope
-    cxt.popScope();
-    return val;
-};
-
-JScript::JScript(JSContext &cxt) : cxt(cxt) {
-    Lexer lexer;
-    cxt = cxt;
-}
