@@ -35,7 +35,7 @@ JSValuePtr JScript::factor() {
     JSValuePtr r;
     lexer.matchOrFail(L_PAR);
     lexer.nextToken();
-    r = this->base();
+    r = base();
     lexer.nextToken();
     lexer.matchOrFail(R_PAR);
     return r;
@@ -46,7 +46,7 @@ JSValuePtr JScript::mathExp(JSValuePtr &start) {
     char op = lexer.currentChr();
     lexer.next();
     lexer.nextToken();
-    return start->arithmetic(this->base(), op);
+    return start->arithmetic(base(), op);
 };
 
 void JScript::assignment() {
@@ -57,7 +57,7 @@ void JScript::assignment() {
     lexer.matchOrFail(EQUALS);
 
     lexer.nextToken();
-    JSValuePtr value = this->base();
+    JSValuePtr value = base();
     cxt.JSValueCache.push_back(value);
     JSValueHandlePtr symbol = JSValueHandlePtr(new JSValueHandle(value, name));
     cxt.addChild(symbol);
@@ -70,7 +70,7 @@ JSValuePtr JScript::block() {
     if (lexer.match(R_CBRACKET))
         return val;
     cxt.pushScope();
-    val = this->base();
+    val = base();
     cxt.popScope();
     lexer.nextToken();
     lexer.matchOrFail(R_CBRACKET);
@@ -81,10 +81,10 @@ JSValuePtr JScript::ifStatement() {
     lexer.matchOrFail(IF);
     lexer.nextToken();
     JSValuePtr if_val, val;
-    if_val = this->factor();
+    if_val = factor();
     lexer.nextToken();
     if (if_val->getBool()) {
-        val = this->block();
+        val = block();
         lexer.nextToken();
         if (lexer.match(ELSE)) {
             lexer.nextToken();
@@ -98,7 +98,7 @@ JSValuePtr JScript::ifStatement() {
         lexer.nextToken();
         if (lexer.match(ELSE)) {
             lexer.nextToken();
-            val = this->block();
+            val = block();
         }
     }
 
@@ -151,7 +151,7 @@ void JScript::defineFunction() {
     std::string funcName = lexer.substr;
     lexer.nextToken();
     lexer.matchOrFail(L_PAR);
-    JSValuePtr value = this->defineLambdaFunction();
+    JSValuePtr value = defineLambdaFunction();
     cxt.JSValueCache.push_back(value);
     JSValueHandlePtr symbol = JSValueHandlePtr(new JSValueHandle(value, funcName));
     cxt.addChild(symbol);
@@ -166,19 +166,19 @@ JSValuePtr JScript::base() {
          * on whether or not the keyword is followed by an identifier */
         lexer.nextToken();
         if (lexer.match(L_PAR))
-            return this->defineLambdaFunction();
+            return defineLambdaFunction();
         lexer.matchOrFail(IDENTIFIER);
-        this->defineFunction();
+        defineFunction();
         return JSValuePtr(new JSValue());
     };
 
     if (lexer.match(IF)) {
-        return this->ifStatement();
+        return ifStatement();
     }
 
     if (lexer.match(VAR)) {
         lexer.nextToken();
-        this->assignment();
+        assignment();
         return JSValuePtr(new JSValue());
     }
 
@@ -191,38 +191,38 @@ JSValuePtr JScript::base() {
         lexer.nextToken();
         if (lexer.match(EQUALS)) {
             lexer.nextToken();
-            tmp->value = this->base();
+            tmp->value = base();
             return JSValuePtr(new JSValue());
         }
 
         val = tmp->value;
 
         if (lexer.match(L_PAR)) {
-            return this->callFunction(val);
+            return callFunction(val);
         }
 
         if (lexer.match(OPERATOR))
-            return this->mathExp(val);
+            return mathExp(val);
 
         lexer.prevToken();
         return val;
     };
 
     if (lexer.match(L_PAR)) {
-       val = this->factor();
+       val = factor();
         lexer.nextToken();
         if (lexer.match(OPERATOR)) {
-            return this->mathExp(val);
+            return mathExp(val);
         }
         lexer.prevToken();
         return val;
     }
 
     if (lexer.match(INT) or lexer.match(FLOAT) or lexer.match(OPERATOR)) {
-        val = this->digit();
+        val = digit();
         lexer.nextToken();
         if (lexer.match(OPERATOR)) {
-            return this->mathExp(val);
+            return mathExp(val);
         }
         lexer.prevToken();
         return val;
@@ -253,7 +253,7 @@ JSValuePtr JScript::execute(std::string line) {
             lexer.reset();
             break;
         }
-        result = this->base();
+        result = base();
     }
     return result;
 }
@@ -262,7 +262,7 @@ JSValuePtr JScript::callFunction(JSValuePtr &func) {
     std::vector<JSValuePtr> arguments;
     lexer.nextToken();
     while (!lexer.match(R_PAR)) {
-        arguments.push_back(this->base());
+        arguments.push_back(base());
         lexer.nextToken();
         if (!lexer.match(COMMA) and !lexer.match(R_PAR))
             lexer.error("expected COMMA, or R_PAR while parsing function arguments but found " + lexer.getCurrentTokenStr());
@@ -270,22 +270,22 @@ JSValuePtr JScript::callFunction(JSValuePtr &func) {
             lexer.nextToken();
     }
     // initialize the local scope and variables
-    this->cxt.pushScope();
+    cxt.pushScope();
     for (int i = 0; i < func->arguments.size(); i++) {
         if (i < arguments.size()) {
-            this->cxt.addChild(JSValueHandlePtr(new JSValueHandle(arguments[i], func->arguments[i])));
+            cxt.addChild(JSValueHandlePtr(new JSValueHandle(arguments[i], func->arguments[i])));
         } else {
-            this->cxt.addChild(JSValueHandlePtr(new JSValueHandle(JSValuePtr(), func->arguments[i])));
+            cxt.addChild(JSValueHandlePtr(new JSValueHandle(JSValuePtr(), func->arguments[i])));
         }
     };
-    JScript tmpJScript(this->cxt);
+    JScript tmpJScript(cxt);
     JSValuePtr val = tmpJScript.execute(func->getString());
     // kill the function scope
-    this->cxt.popScope();
+    cxt.popScope();
     return val;
 };
 
 JScript::JScript(JSContext &cxt) : cxt(cxt) {
     Lexer lexer;
-    this->cxt = cxt;
+    cxt = cxt;
 }

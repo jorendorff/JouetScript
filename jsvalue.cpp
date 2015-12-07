@@ -5,13 +5,13 @@
 #include "jsvalue.h"
 
 JSValue::JSValue() {
-    this->flags = JSVALUE_UNDEFINED;
+    flags = JSVALUE_UNDEFINED;
 };
 
 JSValue::JSValue(int data, JSVALUE_FLAGS flags) {
-    this->intData = data;
-    this->flags = flags;
-    this->marked = false;
+    intData = data;
+    flags = flags;
+    marked = false;
 };
 
 int JSValue::getInt() {
@@ -19,9 +19,9 @@ int JSValue::getInt() {
 }
 
 JSValue::JSValue(float data, JSVALUE_FLAGS flags) {
-    this->floatData = data;
-    this->flags = flags;
-    this->marked = false;
+    floatData = data;
+    flags = flags;
+    marked = false;
 };
 
 float JSValue::getFloat() {
@@ -29,9 +29,9 @@ float JSValue::getFloat() {
 }
 
 JSValue::JSValue(std::string data, JSVALUE_FLAGS flags) {
-    this->data = data;
-    this->flags = flags;
-    this->marked = false;
+    data = data;
+    flags = flags;
+    marked = false;
 };
 
 std::string JSValue::getString() {
@@ -39,32 +39,32 @@ std::string JSValue::getString() {
 }
 
 JSValue::JSValue(bool data, JSVALUE_FLAGS flags) {
-    this->intData = data ? 1 : 0;
-    this->flags = flags;
-    this->marked = false;
+    intData = data ? 1 : 0;
+    flags = flags;
+    marked = false;
 };
 
 bool JSValue::getBool() {
-    return this->intData ? true : false;
+    return intData ? true : false;
 }
 
 std::string JSValue::str() {
     std::ostringstream out;
-    if (this->isInt()) {
-        out << this->getInt();
-    } else if (this->isFloat()) {
-        out << this->getFloat();
-    } else if (this->isString()) {
-        out << this->getString();
-    } else if (this->isBool()) {
-        out << this->getBool() ? "true" : "false";
-    } else if (this->isFunction()) {
-        out << "<function: " << this->getString() << " | args: ";
-        for (auto arg: this->arguments) {
+    if (isInt()) {
+        out << getInt();
+    } else if (isFloat()) {
+        out << getFloat();
+    } else if (isString()) {
+        out << getString();
+    } else if (isBool()) {
+        out << getBool() ? "true" : "false";
+    } else if (isFunction()) {
+        out << "<function: " << getString() << " | args: ";
+        for (auto arg: arguments) {
             out << arg << " ";
         }
         out << ">";
-    } else if (this->isUndefined()) {
+    } else if (isUndefined()) {
         out << "undefined";
     }
     return out.str();
@@ -84,15 +84,15 @@ T mathOp(T a, T b, char op) {
 };
 
 JSValuePtr JSValue::arithmetic(JSValuePtr value, char op) {
-    if (this->isFloat() or value->isFloat()) {
+    if (isFloat() or value->isFloat()) {
         float af, bf, cf;
-        af = this->isFloat() ? this->getFloat() : (float)this->getInt();
+        af = isFloat() ? getFloat() : (float)getInt();
         bf = value->isFloat() ? value->getFloat() : (float)value->getInt();
         cf = mathOp(af, bf, op);
         return JSValuePtr(new JSValue(cf, JSVALUE_FLOAT));
-    } else if (this->isInt() and value->isInt()) {
+    } else if (isInt() and value->isInt()) {
         int a, b, c;
-        a = this->getInt();
+        a = getInt();
         b = value->getInt();
         c = mathOp(a, b, op);
         return JSValuePtr(new JSValue(c, JSVALUE_INT));
@@ -101,8 +101,8 @@ JSValuePtr JSValue::arithmetic(JSValuePtr value, char op) {
 };
 
 JSValueHandle::JSValueHandle(JSValuePtr value, std::string name) {
-    this->name = name;
-    this->value = value;
+    name = name;
+    value = value;
 }
 
 JSContext::JSContext() {

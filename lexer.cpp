@@ -40,25 +40,25 @@ std::string Lexer::getTokenStr(TOKEN_TYPES token) {
 };
 
 std::string Lexer::getCurrentTokenStr() {
-    return this->getTokenStr(this->token);
+    return getTokenStr(token);
 }
 
 void Lexer::next() {
     // allow escaping
-    if (this->currentChr() == '\\')
+    if (currentChr() == '\\')
         end_position++;
     end_position++;
 };
 
 void Lexer::save() {
-    substr = substr + this->currentChr();
+    substr = substr + currentChr();
 };
 
 void Lexer::saveAndNext() {
-    if (this->currentChr() == '\\')
+    if (currentChr() == '\\')
         end_position++;
-    this->save();
-    this->next();
+    save();
+    next();
 };
 
 char Lexer::currentChr() {
@@ -70,11 +70,11 @@ char Lexer::peek() {
 };
 
 void Lexer::skipWhiteSpace() {
-    while (this->currentChr() == ' ' or
-            this->currentChr() == '\t' or
-            this->currentChr() == '\r' or
-            this->currentChr() == '\n')
-        this->next();
+    while (currentChr() == ' ' or
+            currentChr() == '\t' or
+            currentChr() == '\r' or
+            currentChr() == '\n')
+        next();
 };
 
 void Lexer::backup() {
@@ -82,14 +82,14 @@ void Lexer::backup() {
 };
 
 bool Lexer::isAlpha() {
-    if ((this->currentChr() >= 'a' and this->currentChr() <= 'z') or
-        (this->currentChr() >= 'A' and this->currentChr() <= 'Z'))
+    if ((currentChr() >= 'a' and currentChr() <= 'z') or
+        (currentChr() >= 'A' and currentChr() <= 'Z'))
         return true;
     return false;
 }
 
 bool Lexer::isDigit() {
-    if (this->currentChr() >= '0' and this->currentChr() <= '9')
+    if (currentChr() >= '0' and currentChr() <= '9')
         return true;
     return false;
 }
@@ -105,14 +105,14 @@ void Lexer::nextToken() {
     prev_position = end_position;
     prev_token = token;
     substr.clear();
-    this->skipWhiteSpace();
+    skipWhiteSpace();
 
     /* ALPHA KEYWORDS AND IDENTIFIERS */
-    if (this->isAlpha()) {
-        while (this->isAlpha()
-            or this->isDigit()
-            or this->currentChr() == '_') {
-            this->saveAndNext();}
+    if (isAlpha()) {
+        while (isAlpha()
+            or isDigit()
+            or currentChr() == '_') {
+            saveAndNext();}
         if (substr == "var") {
             token = VAR;
             return;
@@ -135,14 +135,14 @@ void Lexer::nextToken() {
     }
 
     /* INTS AND FLOATS */
-    if (this->isDigit()) {
-        while (this->isDigit())
-            this->saveAndNext();
-        if (this->currentChr() == '.') {
+    if (isDigit()) {
+        while (isDigit())
+            saveAndNext();
+        if (currentChr() == '.') {
             token = FLOAT;
-            this->saveAndNext();
-            while (this->isDigit())
-                this->saveAndNext();
+            saveAndNext();
+            while (isDigit())
+                saveAndNext();
             return;
         } else {
             token = INT;
@@ -151,40 +151,40 @@ void Lexer::nextToken() {
     }
 
     /* STRINGS */
-    if (this->currentChr() == '"') {
-        this->next();
-        while (this->currentChr() != '"')
-            this->saveAndNext();
-       this->next();
+    if (currentChr() == '"') {
+        next();
+        while (currentChr() != '"')
+            saveAndNext();
+       next();
        token = STRING;
        return;
     }
 
     /* OPERATORS */
-    if (this->currentChr() == '+' or
-        this->currentChr() == '-' or
-        this->currentChr() == '*' or
-        this->currentChr() == '/' or
-        this->currentChr() == '^' or
-        this->currentChr() == '&') {
+    if (currentChr() == '+' or
+        currentChr() == '-' or
+        currentChr() == '*' or
+        currentChr() == '/' or
+        currentChr() == '^' or
+        currentChr() == '&') {
         token = OPERATOR;
-        this->saveAndNext();
+        saveAndNext();
         return;
     }
 
     /* SINGLE CHAR SYMBOLS */
-    switch (this->currentChr()) {
-        case '=' : token = EQUALS;      this->saveAndNext(); return;
-        case '(' : token = L_PAR;       this->saveAndNext(); return;
-        case ')' : token = R_PAR;       this->saveAndNext(); return;
-        case '{' : token = L_CBRACKET;  this->saveAndNext(); return;
-        case '}' : token = R_CBRACKET;  this->saveAndNext(); return;
-        case ';' : token = SEMICOLON;   this->saveAndNext(); return;
-        case ',' : token = COMMA;       this->saveAndNext(); return;
+    switch (currentChr()) {
+        case '=' : token = EQUALS;      saveAndNext(); return;
+        case '(' : token = L_PAR;       saveAndNext(); return;
+        case ')' : token = R_PAR;       saveAndNext(); return;
+        case '{' : token = L_CBRACKET;  saveAndNext(); return;
+        case '}' : token = R_CBRACKET;  saveAndNext(); return;
+        case ';' : token = SEMICOLON;   saveAndNext(); return;
+        case ',' : token = COMMA;       saveAndNext(); return;
     }
 
-    while (this->currentChr() != '\0')
-        this->next();
+    while (currentChr() != '\0')
+        next();
     token = _EOF_;
     return;
 };
@@ -198,7 +198,7 @@ bool Lexer::match(TOKEN_TYPES type) {
 bool Lexer::matchOrFail(TOKEN_TYPES type) {
     if (token != type)
         throw new LexerException(
-            "expected " + getTokenStr(type) + " but found " + this->getCurrentTokenStr(),
+            "expected " + getTokenStr(type) + " but found " + getCurrentTokenStr(),
             end_position
         );
     return true;
