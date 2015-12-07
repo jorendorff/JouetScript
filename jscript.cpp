@@ -11,7 +11,7 @@
 
 JScript::JScript(JSContext &cxt) : cxt(cxt) {
     Lexer lexer;
-    cxt = cxt;
+    this->cxt = cxt;
 }
 
 JSValuePtr JScript::execute(std::string line) {
