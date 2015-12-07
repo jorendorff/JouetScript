@@ -1,10 +1,12 @@
-var b = 99;
+var b = 0;
+
 function recurse(a) {
   b = a;
-  if (a) {
-    recurse(a - 1)
+  if (99 - a) {
+    recurse(a + 1)
   } else {
     a
   }
 };
+
 recurse(b);
