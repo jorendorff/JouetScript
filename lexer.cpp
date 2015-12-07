@@ -13,6 +13,21 @@ Lexer::Lexer() {
     prev_position = 0;
 }
 
+void Lexer::load(std::string &line) {
+    buffer = buffer + line;
+};
+
+void Lexer::reset() {
+    buffer = "";
+    end_position = 0;
+    prev_position = 0;
+    token = EMPTY;
+    prev_token = EMPTY;
+    substr = "";
+    prev_substr = "";
+};
+
+
 std::string Lexer::getTokenStr(TOKEN_TYPES token) {
     switch (token) {
         case EMPTY      : return "EMPTY";
@@ -50,6 +65,10 @@ void Lexer::next() {
     end_position++;
 };
 
+void Lexer::backup() {
+    end_position--;
+};
+
 void Lexer::save() {
     substr = substr + currentChr();
 };
@@ -77,10 +96,6 @@ void Lexer::skipWhiteSpace() {
         next();
 };
 
-void Lexer::backup() {
-    end_position--;
-};
-
 bool Lexer::isAlpha() {
     if ((currentChr() >= 'a' and currentChr() <= 'z') or
         (currentChr() >= 'A' and currentChr() <= 'Z'))
@@ -92,12 +107,6 @@ bool Lexer::isDigit() {
     if (currentChr() >= '0' and currentChr() <= '9')
         return true;
     return false;
-}
-
-void Lexer::prevToken() {
-    substr = prev_substr;
-    end_position = prev_position;
-    token = prev_token;
 }
 
 void Lexer::nextToken() {
@@ -189,6 +198,12 @@ void Lexer::nextToken() {
     return;
 };
 
+void Lexer::prevToken() {
+    substr = prev_substr;
+    end_position = prev_position;
+    token = prev_token;
+}
+
 bool Lexer::match(TOKEN_TYPES type) {
     if (token == type)
         return true;
@@ -202,20 +217,6 @@ bool Lexer::matchOrFail(TOKEN_TYPES type) {
             end_position
         );
     return true;
-};
-
-void Lexer::load(std::string &line) {
-    buffer = buffer + line;
-};
-
-void Lexer::reset() {
-    buffer = "";
-    end_position = 0;
-    prev_position = 0;
-    token = EMPTY;
-    prev_token = EMPTY;
-    substr = "";
-    prev_substr = "";
 };
 
 void Lexer::error() {

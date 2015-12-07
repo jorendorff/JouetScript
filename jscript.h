@@ -9,23 +9,21 @@ class JScript {
     public:
         JSContext &cxt;
 
-        /* determine whether our buffer is empty */
         JScript(JSContext&);
-        int bytesRemaining() { return lexer.buffer.size(); }
+        JSValuePtr execute(std::string line);
         JSValuePtr callFunction(JSValuePtr&);
+        int bytesRemaining() { return lexer.buffer.size(); }
 
         /* parsing functions */
-        JSValuePtr boolean();
         JSValuePtr digit();
         JSValuePtr block();
         JSValuePtr factor();
         JSValuePtr mathExp(JSValuePtr &start);
-        JSValuePtr ifStatement();
         void assignment();
+        JSValuePtr ifStatement();
         void defineFunction();
         JSValuePtr defineLambdaFunction();
         JSValuePtr base();
-        JSValuePtr execute(std::string line);
 };
 
 #endif

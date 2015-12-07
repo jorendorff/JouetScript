@@ -54,19 +54,19 @@ class Lexer {
 
         std::string getTokenStr(TOKEN_TYPES token);
         std::string getCurrentTokenStr();
-        char currentChr();
-        char peek();
-        void nextToken();
-        void prevToken();
         void next();
         void backup();
         void save();
         void saveAndNext();
+        char currentChr();
+        char peek();
+        void skipWhiteSpace();
         bool isAlpha();
         bool isDigit();
+        void nextToken();
+        void prevToken();
         bool match(TOKEN_TYPES type);
         bool matchOrFail(TOKEN_TYPES type);
-        void skipWhiteSpace();
         void error();
         void error(const std::string);
 
