@@ -30,7 +30,10 @@ int main(int argc, char *argv[]) {
             if (jscript.bytesRemaining() <= 0) {
                 char data[MAX_LINE_LENGTH];
                 std::cout << "JouetScript$ ";
-                std::cin.getline(data, MAX_LINE_LENGTH);
+                if (!std::cin.getline(data, MAX_LINE_LENGTH)) {
+                    std::cout << std::endl;
+                    break;
+                }
                 std::cout << jscript.execute(data)->str() << std::endl;
             } else {
                 std::cout << jscript.execute("")->str() << std::endl;
