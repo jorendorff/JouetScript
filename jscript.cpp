@@ -59,7 +59,7 @@ JSValuePtr JScript::callFunction(JSValuePtr &func) {
 
 JSValuePtr JScript::digit() {
     JSValuePtr val, zero_val;
-    char op; // if we see this, we need to do arithmetic on our value
+    char op = 0; // if we see this, we need to do arithmetic on our value
     if (lexer.match(OPERATOR)) {
         lexer.backup();
         op = lexer.currentChr();
