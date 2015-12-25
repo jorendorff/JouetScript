@@ -57,7 +57,7 @@ std::string JSValue::str() {
     } else if (isString()) {
         out << getString();
     } else if (isBool()) {
-        out << getBool() ? "true" : "false";
+        out << getBool();
     } else if (isFunction()) {
         out << "<function: " << getString() << " | args: ";
         for (auto arg: arguments) {

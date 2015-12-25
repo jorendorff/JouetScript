@@ -52,6 +52,7 @@ std::string Lexer::getTokenStr(TOKEN_TYPES token) {
         case ELSE       : return "ELSE";
         case _EOF_      : return "EOF";
     }
+    return "";
 };
 
 std::string Lexer::getCurrentTokenStr() {

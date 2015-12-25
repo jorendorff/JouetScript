@@ -43,7 +43,7 @@ JSValuePtr JScript::callFunction(JSValuePtr &func) {
     }
     // initialize the local scope and variables
     cxt.pushScope();
-    for (int i = 0; i < func->arguments.size(); i++) {
+    for (unsigned int i = 0; i < func->arguments.size(); i++) {
         if (i < arguments.size()) {
             cxt.addChild(JSValueHandlePtr(new JSValueHandle(arguments[i], func->arguments[i])));
         } else {
@@ -288,5 +288,6 @@ JSValuePtr JScript::base() {
     }
 
     lexer.error("invalid symbol (" + lexer.substr + ")");
+    return val;
 };
 
