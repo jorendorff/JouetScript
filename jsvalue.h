@@ -22,6 +22,7 @@ class JSValue {
 
     public:
         JSValue();
+        JSValue(JSValuePtr parent);
         bool isUndefined()  { return (flags & JSVALUE_UNDEFINED) != 0; };
 
         JSValue(JSValuePtr parent, int data, JSVALUE_FLAGS flags);

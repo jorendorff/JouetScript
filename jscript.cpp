@@ -115,7 +115,7 @@ JSValuePtr JScript::block() {
     lexer.nextToken();
     if (lexer.match(R_CBRACKET))
         return val;
-    cxt.pushScope(JSValuePtr(new JSValue()));
+    cxt.pushScope(JSValuePtr(new JSValue(cxt.getCurrentScope())));
     val = base();
     cxt.popScope();
     lexer.nextToken();

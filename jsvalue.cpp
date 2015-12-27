@@ -6,8 +6,14 @@
 
 JSValue::JSValue() {
     flags = JSVALUE_UNDEFINED;
+    locals = std::map<std::string, JSValuePtr>();
+};
+
+JSValue::JSValue(JSValuePtr parent) {
+    flags = JSVALUE_UNDEFINED;
     parent = NULL;
     locals = std::map<std::string, JSValuePtr>();
+    this->parent = parent;
 };
 
 JSValue::JSValue(JSValuePtr parent, int data, JSVALUE_FLAGS flags) {
