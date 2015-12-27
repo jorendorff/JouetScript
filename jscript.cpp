@@ -214,7 +214,16 @@ JSValuePtr JScript::base() {
         lexer.matchOrFail(IDENTIFIER);
         defineFunction();
         return JSValuePtr(new JSValue());
-    };
+    }
+
+    if (lexer.match(RETURN)) {
+        lexer.nextToken();
+        val = base();
+        // Skip any remaining code
+        while (!lexer.match(_EOF_))
+            lexer.nextToken();
+        return val;
+    }
 
     if (lexer.match(IF)) {
         return ifStatement();

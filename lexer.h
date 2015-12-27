@@ -5,6 +5,7 @@ enum TOKEN_TYPES {
     EMPTY,
     IDENTIFIER,
     FUNCTION,
+    RETURN,
     VAR,
     DIGIT,
     INT,

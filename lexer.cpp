@@ -33,6 +33,7 @@ std::string Lexer::getTokenStr(TOKEN_TYPES token) {
         case EMPTY      : return "EMPTY";
         case IDENTIFIER : return "IDENTIFIER";
         case FUNCTION   : return "FUNCTION";
+        case RETURN     : return "RETURN";
         case VAR        : return "VAR";
         case DIGIT      : return "DIGIT";
         case INT        : return "INT";
@@ -128,6 +129,9 @@ void Lexer::nextToken() {
             return;
         } else if (substr == "function") {
             token = FUNCTION;
+            return;
+        } else if (substr == "return") {
+            token = RETURN;
             return;
         } else if (substr == "true" || substr == "false") {
             token = BOOL;
