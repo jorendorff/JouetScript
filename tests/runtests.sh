@@ -2,8 +2,17 @@
 
 set -e
 
-if [ $# != 2 ]; then
-    echo "usage: $0 <js-shell> [test-file]";
-fi;
+if [ $# -lt 1 ]; then
+    echo "usage: $0 <js-shell> [test-files ... ]";
+fi
 
-# todo: actually write the test runner....
+if [ $# = 1 ]; then
+    tests=$(find $(dirname $0) -name *.js);
+    else
+    tests=${@:2};
+fi
+
+for t in $tests; do
+    $1 $t
+    echo "$t : passed";
+done
