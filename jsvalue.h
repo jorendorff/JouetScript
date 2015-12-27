@@ -71,8 +71,9 @@ class JSContext {
         JSContext();
         void pushScope(JSValuePtr);
         void popScope();
-        /* Adds a child to the _current_ scope */
+        /* Adds stores a value the _current_ scope */
         void storeValueByName(std::string name, JSValuePtr value);
+        void overwriteNamedValue(std::string name, JSValuePtr original, JSValuePtr value);
         /* Find a child by name */
         JSValuePtr lookupValueByName(const std::string name);
         /* Return the top-most scope */

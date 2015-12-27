@@ -137,6 +137,10 @@ void JSContext::storeValueByName(std::string name, JSValuePtr value) {
     getCurrentScope()->locals[name] = value;
 };
 
+void JSContext::overwriteNamedValue(std::string name, JSValuePtr original, JSValuePtr value) {
+    original->parent->locals[name] = value;
+};
+
 JSValuePtr JSContext::lookupValueByName(std::string name) {
     JSValuePtr current = getCurrentScope();
     while (current) {

@@ -36,8 +36,6 @@ JSValuePtr JScript::callFunction(JSValuePtr func) {
     while (!lexer.match(R_PAR)) {
         arguments.push_back(base());
         lexer.nextToken();
-        if (!lexer.match(COMMA) and !lexer.match(R_PAR))
-            lexer.error("expected COMMA, or R_PAR while parsing function arguments but found " + lexer.getCurrentTokenStr());
         if (lexer.match(COMMA))
             lexer.nextToken();
     }
@@ -247,7 +245,7 @@ JSValuePtr JScript::base() {
         if (lexer.match(EQUALS)) {
             lexer.nextToken();
             tmp = base();
-            cxt.storeValueByName(name, tmp);
+            cxt.overwriteNamedValue(name, val, tmp);
             return JSValuePtr(new JSValue());
         }
 
