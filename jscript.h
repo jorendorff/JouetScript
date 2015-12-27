@@ -11,7 +11,7 @@ class JScript {
 
         JScript(JSContext&);
         JSValuePtr execute(std::string line);
-        JSValuePtr callFunction(JSValuePtr&);
+        JSValuePtr callFunction(JSValuePtr);
         int bytesRemaining() { return lexer.buffer.size(); }
 
         /* parsing functions */

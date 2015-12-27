@@ -30,7 +30,7 @@ JSValuePtr JScript::execute(std::string line) {
     return result;
 };
 
-JSValuePtr JScript::callFunction(JSValuePtr &func) {
+JSValuePtr JScript::callFunction(JSValuePtr func) {
     std::vector<JSValuePtr> arguments;
     lexer.nextToken();
     while (!lexer.match(R_PAR)) {
@@ -42,12 +42,12 @@ JSValuePtr JScript::callFunction(JSValuePtr &func) {
             lexer.nextToken();
     }
     // initialize the local scope and variables
-    cxt.pushScope();
+    cxt.pushScope(func);
     for (unsigned int i = 0; i < func->arguments.size(); i++) {
         if (i < arguments.size()) {
-            cxt.addChild(JSValueHandlePtr(new JSValueHandle(arguments[i], func->arguments[i])));
+            cxt.addChild(func->arguments[i], arguments[i]);
         } else {
-            cxt.addChild(JSValueHandlePtr(new JSValueHandle(JSValuePtr(), func->arguments[i])));
+            cxt.addChild(func->arguments[i], JSValuePtr());
         }
     };
     JScript tmpJScript(cxt);
@@ -64,16 +64,16 @@ JSValuePtr JScript::digit() {
         lexer.backup();
         op = lexer.currentChr();
         lexer.next();
-        zero_val = JSValuePtr(new JSValue(0, JSVALUE_INT));
+        zero_val = JSValuePtr(new JSValue(cxt.getCurrentScope(), 0, JSVALUE_INT));
         lexer.nextToken();
     }
     if (lexer.match(INT)) {
-        val = JSValuePtr(new JSValue(std::stoi(lexer.substr), JSVALUE_INT));
+        val = JSValuePtr(new JSValue(cxt.getCurrentScope(), std::stoi(lexer.substr), JSVALUE_INT));
     } else if (lexer.match(FLOAT)) {
-        val = JSValuePtr(new JSValue(std::stof(lexer.substr), JSVALUE_FLOAT));
+        val = JSValuePtr(new JSValue(cxt.getCurrentScope(), std::stof(lexer.substr), JSVALUE_FLOAT));
     }
     if (op && val) {
-        zero_val = JSValuePtr(new JSValue(0, JSVALUE_INT));
+        zero_val = JSValuePtr(new JSValue(cxt.getCurrentScope(), 0, JSVALUE_INT));
         val = zero_val->arithmetic(val, op);
     }
     return val;
@@ -106,9 +106,7 @@ void JScript::assignment() {
 
     lexer.nextToken();
     JSValuePtr value = base();
-    cxt.JSValueCache.push_back(value);
-    JSValueHandlePtr symbol = JSValueHandlePtr(new JSValueHandle(value, name));
-    cxt.addChild(symbol);
+    cxt.addChild(name, value);
 };
 
 JSValuePtr JScript::block() {
@@ -117,7 +115,7 @@ JSValuePtr JScript::block() {
     lexer.nextToken();
     if (lexer.match(R_CBRACKET))
         return val;
-    cxt.pushScope();
+    cxt.pushScope(JSValuePtr(new JSValue()));
     val = base();
     cxt.popScope();
     lexer.nextToken();
@@ -190,7 +188,7 @@ JSValuePtr JScript::defineLambdaFunction() {
             function_body = function_body + " ";
         lexer.nextToken();
     }
-    JSValuePtr val = JSValuePtr(new JSValue(function_body, JSVALUE_FUNCTION));
+    JSValuePtr val = JSValuePtr(new JSValue(cxt.getCurrentScope(), function_body, JSVALUE_FUNCTION));
     val->arguments = arguments;
     return val;
 };
@@ -200,9 +198,7 @@ void JScript::defineFunction() {
     lexer.nextToken();
     lexer.matchOrFail(L_PAR);
     JSValuePtr value = defineLambdaFunction();
-    cxt.JSValueCache.push_back(value);
-    JSValueHandlePtr symbol = JSValueHandlePtr(new JSValueHandle(value, funcName));
-    cxt.addChild(symbol);
+    cxt.addChild(funcName, value);
 };
 
 JSValuePtr JScript::base() {
@@ -231,19 +227,20 @@ JSValuePtr JScript::base() {
     }
 
     if (lexer.match(IDENTIFIER)) {
-        JSValueHandlePtr tmp = cxt.findChild(lexer.substr);
+        std::string name = lexer.substr;
+        JSValuePtr tmp = cxt.findChild(lexer.substr);
         // identifiers without a "var" prefix _must_ exist
         if (tmp == NULL)
             lexer.error("'" + lexer.substr + "' is undefined");
 
+        val = tmp;
         lexer.nextToken();
         if (lexer.match(EQUALS)) {
             lexer.nextToken();
-            tmp->value = base();
+            tmp = base();
+            cxt.addChild(name, tmp);
             return JSValuePtr(new JSValue());
         }
-
-        val = tmp->value;
 
         if (lexer.match(L_PAR)) {
             return callFunction(val);
@@ -277,14 +274,14 @@ JSValuePtr JScript::base() {
     }
 
     if (lexer.match(STRING)) {
-        val = JSValuePtr(new JSValue(lexer.substr, JSVALUE_STRING));
+        val = JSValuePtr(new JSValue(cxt.getCurrentScope(), lexer.substr, JSVALUE_STRING));
         return val;
     }
 
     if (lexer.match(BOOL)) {
         if (lexer.substr == "true")
-            return JSValuePtr(new JSValue(true, JSVALUE_BOOL));
-        return JSValuePtr(new JSValue(false, JSVALUE_BOOL));
+            return JSValuePtr(new JSValue(cxt.getCurrentScope(), true, JSVALUE_BOOL));
+        return JSValuePtr(new JSValue(cxt.getCurrentScope(), false, JSVALUE_BOOL));
     }
 
     lexer.error("invalid symbol (" + lexer.substr + ")");
