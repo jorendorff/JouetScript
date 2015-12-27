@@ -45,9 +45,9 @@ JSValuePtr JScript::callFunction(JSValuePtr func) {
     cxt.pushScope(func);
     for (unsigned int i = 0; i < func->arguments.size(); i++) {
         if (i < arguments.size()) {
-            cxt.addChild(func->arguments[i], arguments[i]);
+            cxt.storeValueByName(func->arguments[i], arguments[i]);
         } else {
-            cxt.addChild(func->arguments[i], JSValuePtr());
+            cxt.storeValueByName(func->arguments[i], JSValuePtr());
         }
     };
     JScript tmpJScript(cxt);
@@ -106,7 +106,7 @@ void JScript::assignment() {
 
     lexer.nextToken();
     JSValuePtr value = base();
-    cxt.addChild(name, value);
+    cxt.storeValueByName(name, value);
 };
 
 JSValuePtr JScript::block() {
@@ -198,7 +198,7 @@ void JScript::defineFunction() {
     lexer.nextToken();
     lexer.matchOrFail(L_PAR);
     JSValuePtr value = defineLambdaFunction();
-    cxt.addChild(funcName, value);
+    cxt.storeValueByName(funcName, value);
 };
 
 JSValuePtr JScript::base() {
@@ -228,7 +228,7 @@ JSValuePtr JScript::base() {
 
     if (lexer.match(IDENTIFIER)) {
         std::string name = lexer.substr;
-        JSValuePtr tmp = cxt.findChild(lexer.substr);
+        JSValuePtr tmp = cxt.lookupValueByName(lexer.substr);
         // identifiers without a "var" prefix _must_ exist
         if (tmp == NULL)
             lexer.error("'" + lexer.substr + "' is undefined");
@@ -238,7 +238,7 @@ JSValuePtr JScript::base() {
         if (lexer.match(EQUALS)) {
             lexer.nextToken();
             tmp = base();
-            cxt.addChild(name, tmp);
+            cxt.storeValueByName(name, tmp);
             return JSValuePtr(new JSValue());
         }
 

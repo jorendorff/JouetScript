@@ -110,11 +110,6 @@ JSValuePtr JSValue::arithmetic(JSValuePtr value, char op) {
     throw;
 };
 
-JSValueHandle::JSValueHandle(JSValuePtr value, std::string name) {
-    this->name = name;
-    this->value = value;
-}
-
 JSContext::JSContext() {
     JSScopeChain = std::vector<JSValuePtr>();
     JSScopeChain.push_back(JSValuePtr(new JSValue()));
@@ -132,11 +127,11 @@ JSValuePtr JSContext::getCurrentScope() {
     return JSScopeChain[JSScopeChain.size() - 1];
 };
 
-void JSContext::addChild(std::string name, JSValuePtr value) {
+void JSContext::storeValueByName(std::string name, JSValuePtr value) {
     getCurrentScope()->locals[name] = value;
 };
 
-JSValuePtr JSContext::findChild(std::string name) {
+JSValuePtr JSContext::lookupValueByName(std::string name) {
     JSValuePtr current = getCurrentScope();
     while (current) {
         if (current->locals[name])
