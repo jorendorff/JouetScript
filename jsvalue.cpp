@@ -11,7 +11,6 @@ JSValue::JSValue() {
 
 JSValue::JSValue(JSValuePtr parent) {
     flags = JSVALUE_UNDEFINED;
-    parent = NULL;
     locals = std::map<std::string, JSValuePtr>();
     this->parent = parent;
 };

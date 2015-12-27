@@ -48,6 +48,7 @@ class JSValue {
         /* named arguments for functions */
         std::vector<std::string> arguments;
 
+        JSValuePtr parent;
 
     protected:
         int flags;
@@ -55,7 +56,6 @@ class JSValue {
         int intData;
         float floatData;
         bool marked;
-        JSValuePtr parent;
         std::map<std::string, JSValuePtr> locals;
 
    friend JSContext;

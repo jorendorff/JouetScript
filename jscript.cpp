@@ -40,7 +40,7 @@ JSValuePtr JScript::callFunction(JSValuePtr func) {
             lexer.nextToken();
     }
     // initialize the local scope and variables
-    cxt.pushScope(func);
+    cxt.pushScope(JSValuePtr(new JSValue(func->parent)));
     for (unsigned int i = 0; i < func->arguments.size(); i++) {
         if (i < arguments.size()) {
             cxt.storeValueByName(func->arguments[i], arguments[i]);
