@@ -110,14 +110,19 @@ void JScript::assignment() {
 JSValuePtr JScript::block() {
     JSValuePtr val;
     lexer.matchOrFail(L_CBRACKET);
-    lexer.nextToken();
-    if (lexer.match(R_CBRACKET))
-        return val;
+    int cbrackets = 1;
     cxt.pushScope(JSValuePtr(new JSValue(cxt.getCurrentScope())));
-    val = base();
+    while (!lexer.match(_EOF_)) {
+        lexer.nextToken();
+        if (lexer.match(L_CBRACKET))
+            cbrackets++;
+        if (lexer.match(R_CBRACKET))
+            cbrackets--;
+        if (cbrackets <= 0)
+            break;
+        val = base();
+    }
     cxt.popScope();
-    lexer.nextToken();
-    lexer.matchOrFail(R_CBRACKET);
     return val;
 };
 
@@ -129,12 +134,14 @@ JSValuePtr JScript::ifStatement() {
     lexer.nextToken();
     if (if_val->getBool()) {
         val = block();
-        lexer.nextToken();
-        if (lexer.match(ELSE)) {
+        if (!lexer.match(_EOF_)) {
             lexer.nextToken();
-            lexer.matchOrFail(L_CBRACKET);
-            while (!lexer.match(R_CBRACKET))
+            if (lexer.match(ELSE)) {
                 lexer.nextToken();
+                lexer.matchOrFail(L_CBRACKET);
+                while (!lexer.match(R_CBRACKET))
+                    lexer.nextToken();
+            }
         }
     } else {
         while (!lexer.match(R_CBRACKET))
@@ -203,37 +210,38 @@ JSValuePtr JScript::base() {
     JSValuePtr val;
 
     /* DEFINE FUNCTION */
-    if (lexer.match(FUNCTION)) {
+    if (lexer.match(FUNCTION) && !val) {
         /* we'll either define or return a function depending
          * on whether or not the keyword is followed by an identifier */
         lexer.nextToken();
-        if (lexer.match(L_PAR))
-            return defineLambdaFunction();
-        lexer.matchOrFail(IDENTIFIER);
-        defineFunction();
-        return JSValuePtr(new JSValue());
+        if (lexer.match(L_PAR)) {
+            val = defineLambdaFunction();
+        } else {
+            lexer.matchOrFail(IDENTIFIER);
+            defineFunction();
+            val = JSValuePtr(new JSValue());
+        }
     }
 
-    if (lexer.match(RETURN)) {
+    if (lexer.match(RETURN) && !val) {
         lexer.nextToken();
         val = base();
         // Skip any remaining code
         while (!lexer.match(_EOF_))
             lexer.nextToken();
-        return val;
     }
 
-    if (lexer.match(IF)) {
-        return ifStatement();
+    if (lexer.match(IF) && !val) {
+        val = ifStatement();
     }
 
-    if (lexer.match(VAR)) {
+    if (lexer.match(VAR) && !val) {
         lexer.nextToken();
         assignment();
-        return JSValuePtr(new JSValue());
+        val = JSValuePtr(new JSValue());
     }
 
-    if (lexer.match(IDENTIFIER)) {
+    if (lexer.match(IDENTIFIER) && !val) {
         std::string name = lexer.substr;
         JSValuePtr tmp = cxt.lookupValueByName(lexer.substr);
         // identifiers without a "var" prefix _must_ exist
@@ -246,21 +254,17 @@ JSValuePtr JScript::base() {
             lexer.nextToken();
             tmp = base();
             cxt.overwriteNamedValue(name, val, tmp);
-            return JSValuePtr(new JSValue());
+            val = JSValuePtr(new JSValue());
+        } else if (lexer.match(L_PAR)) {
+            val = callFunction(val);
+        } else if (lexer.match(OPERATOR)) {
+            val = mathExp(val);
+        } else {
+            lexer.prevToken();
         }
+    }
 
-        if (lexer.match(L_PAR)) {
-            return callFunction(val);
-        }
-
-        if (lexer.match(OPERATOR))
-            return mathExp(val);
-
-        lexer.prevToken();
-        return val;
-    };
-
-    if (lexer.match(L_PAR)) {
+    if (lexer.match(L_PAR) && !val) {
         val = factor();
         lexer.nextToken();
         if (lexer.match(OPERATOR)) {
@@ -270,7 +274,7 @@ JSValuePtr JScript::base() {
         return val;
     }
 
-    if (lexer.match(INT) or lexer.match(FLOAT) or lexer.match(OPERATOR)) {
+    if ((lexer.match(INT) or lexer.match(FLOAT) or lexer.match(OPERATOR)) && !val) {
         val = digit();
         lexer.nextToken();
         if (lexer.match(OPERATOR)) {
@@ -280,18 +284,25 @@ JSValuePtr JScript::base() {
         return val;
     }
 
-    if (lexer.match(STRING)) {
+    if (lexer.match(STRING) && !val) {
         val = JSValuePtr(new JSValue(cxt.getCurrentScope(), lexer.substr, JSVALUE_STRING));
         return val;
     }
 
-    if (lexer.match(BOOL)) {
+    if (lexer.match(BOOL) && !val) {
         if (lexer.substr == "true")
             return JSValuePtr(new JSValue(cxt.getCurrentScope(), true, JSVALUE_BOOL));
         return JSValuePtr(new JSValue(cxt.getCurrentScope(), false, JSVALUE_BOOL));
     }
 
-    lexer.error("invalid symbol (" + lexer.substr + ")");
+    if (!val)
+        lexer.error("invalid symbol (" + lexer.substr + ")");
+
+    // skip semicolons
+    lexer.nextToken();
+    if (lexer.token != SEMICOLON)
+        lexer.prevToken();
+
     return val;
 };
 
