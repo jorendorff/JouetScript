@@ -1,0 +1,3 @@
+script:
+  - make
+  - ./tests/runtests.sh ./js
