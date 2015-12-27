@@ -5,6 +5,8 @@ A toy programming language with JavaScript inspired syntax. It's pretty poorly w
 
 Everything in this language is hand written. It's very basic and standard: recursive descent parser, mark and sweep garbage collector, and syntax directed interpreter (no AST).
 
+[![Build Status](https://travis-ci.org/mrrrgn/JouetScript.svg?branch=master)](https://travis-ci.org/mrrrgn/JouetScript)
+
 <img src="repl.gif"></img>
 
 ---
