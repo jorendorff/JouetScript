@@ -268,20 +268,20 @@ JSValuePtr JScript::base() {
         val = factor();
         lexer.nextToken();
         if (lexer.match(OPERATOR)) {
-            return mathExp(val);
+            val = mathExp(val);
+        } else {
+            lexer.prevToken();
         }
-        lexer.prevToken();
-        return val;
     }
 
     if ((lexer.match(INT) or lexer.match(FLOAT) or lexer.match(OPERATOR)) && !val) {
         val = digit();
         lexer.nextToken();
         if (lexer.match(OPERATOR)) {
-            return mathExp(val);
+            val = mathExp(val);
+        } else {
+            lexer.prevToken();
         }
-        lexer.prevToken();
-        return val;
     }
 
     if (lexer.match(STRING) && !val) {
@@ -290,9 +290,11 @@ JSValuePtr JScript::base() {
     }
 
     if (lexer.match(BOOL) && !val) {
-        if (lexer.substr == "true")
-            return JSValuePtr(new JSValue(cxt.getCurrentScope(), true, JSVALUE_BOOL));
-        return JSValuePtr(new JSValue(cxt.getCurrentScope(), false, JSVALUE_BOOL));
+        if (lexer.substr == "true") {
+            val = JSValuePtr(new JSValue(cxt.getCurrentScope(), true, JSVALUE_BOOL));
+        } else {
+            val = JSValuePtr(new JSValue(cxt.getCurrentScope(), false, JSVALUE_BOOL));
+        }
     }
 
     if (!val)
