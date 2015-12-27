@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-set -e
-
 if [ $# -lt 1 ]; then
     echo "usage: $0 <js-shell> [test-files ... ]";
 fi
@@ -13,6 +11,10 @@ if [ $# = 1 ]; then
 fi
 
 for t in $tests; do
-    $1 $t
-    echo "$t : passed";
+    $1 $t > /dev/null;
+    if [ $? = 0 ]; then
+        echo "$t : passed";
+    else
+        echo "$t : failed";
+    fi
 done
