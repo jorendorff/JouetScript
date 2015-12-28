@@ -36,6 +36,15 @@ class LexerException : std::exception
         }
 };
 
+struct LexerState {
+    TOKEN_TYPES token;
+    TOKEN_TYPES prev_token;
+    int end_position;
+    int prev_position;
+    std::string substr;
+    std::string prev_substr;
+};
+
 class Lexer {
 
    public:
@@ -56,6 +65,8 @@ class Lexer {
 
         std::string getTokenStr(TOKEN_TYPES token);
         std::string getCurrentTokenStr();
+        struct LexerState dumpLexerState();
+        void loadLexerState(struct LexerState state);
         void next();
         void backup();
         void save();

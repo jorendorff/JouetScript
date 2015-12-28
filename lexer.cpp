@@ -61,6 +61,26 @@ std::string Lexer::getCurrentTokenStr() {
     return getTokenStr(token);
 }
 
+struct LexerState Lexer::dumpLexerState() {
+    struct LexerState state;
+    state.token = token;
+    state.prev_token = prev_token;
+    state.end_position = end_position;
+    state.prev_position = prev_position;
+    state.substr = substr;
+    state.prev_substr = prev_substr;
+    return state;
+};
+
+void Lexer::loadLexerState(struct LexerState state) {
+    token = state.token;
+    prev_token = state.prev_token;
+    end_position = state.end_position;
+    prev_position = state.prev_position;
+    substr = state.substr;
+    prev_substr = state.prev_substr;
+};
+
 void Lexer::next() {
     // allow escaping
     if (currentChr() == '\\')
