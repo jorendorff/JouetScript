@@ -111,7 +111,6 @@ JSValuePtr JScript::block() {
     JSValuePtr val;
     lexer.matchOrFail(L_CBRACKET);
     int cbrackets = 1;
-    cxt.pushScope(JSValuePtr(new JSValue(cxt.getCurrentScope())));
     while (!lexer.match(_EOF_)) {
         lexer.nextToken();
         if (lexer.match(L_CBRACKET))
@@ -122,7 +121,6 @@ JSValuePtr JScript::block() {
             break;
         val = base();
     }
-    cxt.popScope();
     return val;
 };
 
@@ -132,6 +130,7 @@ JSValuePtr JScript::ifStatement() {
     JSValuePtr if_val, val;
     if_val = factor();
     lexer.nextToken();
+    cxt.pushScope(JSValuePtr(new JSValue(cxt.getCurrentScope())));
     if (if_val->getBool()) {
         val = block();
         if (!lexer.match(_EOF_)) {
@@ -139,8 +138,14 @@ JSValuePtr JScript::ifStatement() {
             if (lexer.match(ELSE)) {
                 lexer.nextToken();
                 lexer.matchOrFail(L_CBRACKET);
-                while (!lexer.match(R_CBRACKET))
+                int cbrackets = 1;
+                while (cbrackets > 0) {
                     lexer.nextToken();
+                    if (lexer.match(L_CBRACKET))
+                        cbrackets++;
+                    if (lexer.match(R_CBRACKET))
+                        cbrackets--;
+                }
             }
         }
     } else {
@@ -152,7 +157,38 @@ JSValuePtr JScript::ifStatement() {
             val = block();
         }
     }
+    cxt.popScope();
+    if (!val)
+        val = JSValuePtr(new JSValue());
+    return val;
+};
 
+JSValuePtr JScript::whileLoop() {
+    lexer.matchOrFail(WHILE);
+    lexer.nextToken();
+    // we'll save our state here for looping
+    auto state = lexer.dumpLexerState();
+    JSValuePtr if_val, val;
+    cxt.pushScope(JSValuePtr(new JSValue(cxt.getCurrentScope())));
+    if_val = factor();
+    while (if_val->getBool()) {
+        lexer.nextToken();
+        val = block();
+        lexer.loadLexerState(state);
+        if_val = factor();
+    }
+    cxt.popScope();
+    // finally skip over the whole block
+    lexer.nextToken();
+    lexer.matchOrFail(L_CBRACKET);
+    int cbrackets = 1;
+    while (cbrackets > 0) {
+        lexer.nextToken();
+        if (lexer.match(L_CBRACKET))
+            cbrackets++;
+        if (lexer.match(R_CBRACKET))
+            cbrackets--;
+    }
     if (!val)
         val = JSValuePtr(new JSValue());
     return val;
@@ -233,6 +269,10 @@ JSValuePtr JScript::base() {
 
     if (lexer.match(IF) && !val) {
         val = ifStatement();
+    }
+
+    if (lexer.match(WHILE) && !val) {
+        val = whileLoop();
     }
 
     if (lexer.match(VAR) && !val) {

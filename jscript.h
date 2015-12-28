@@ -21,6 +21,7 @@ class JScript {
         JSValuePtr mathExp(JSValuePtr &start);
         void assignment();
         JSValuePtr ifStatement();
+        JSValuePtr whileLoop();
         void defineFunction();
         JSValuePtr defineLambdaFunction();
         JSValuePtr base();
