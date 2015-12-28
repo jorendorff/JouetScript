@@ -18,7 +18,7 @@ class JScript {
         JSValuePtr digit();
         JSValuePtr block();
         JSValuePtr factor();
-        JSValuePtr mathExp(JSValuePtr &start);
+        JSValuePtr binOp(JSValuePtr &start);
         void assignment();
         JSValuePtr ifStatement();
         JSValuePtr whileLoop();

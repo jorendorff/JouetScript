@@ -14,7 +14,7 @@ enum TOKEN_TYPES {
     ALPHA,
     STRING,
     EQUALS,
-    OPERATOR,
+    BINOP,
     SEMICOLON,
     L_PAR,
     R_PAR,
@@ -26,6 +26,35 @@ enum TOKEN_TYPES {
     WHILE,
     _EOF_
 };
+
+enum BINOPS {
+    _BINOP_NOT_FOUND_,
+    PLUS,
+    PLUS_EQ,
+    MIN,
+    MIN_EQ,
+    MUL,
+    MUL_EQ,
+    DIV,
+    DIV_EQ,
+    XOR,
+    XOR_EQ,
+    AND,
+    AND_EQ,
+    // all ops with a triple equals form go below
+    LT,
+    LT_EQ,
+    //LT_EQ_EQ,
+    GT,
+    GT_EQ,
+    //GT_EQ_EQ,
+    EQ_EQ,
+    //EQ_EQ_EQ,
+    NOT_EQ,
+    //NOT_EQ_EQ,
+};
+
+// TODO: Stop being lazy and add precedences
 
 class LexerException : std::exception
 {
@@ -79,6 +108,7 @@ class Lexer {
         bool isDigit();
         void nextToken();
         void prevToken();
+        BINOPS binOp();
         bool match(TOKEN_TYPES type);
         bool matchOrFail(TOKEN_TYPES type);
         void error();

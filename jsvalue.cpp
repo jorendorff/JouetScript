@@ -86,33 +86,62 @@ std::string JSValue::str() {
 }
 
 template <typename T>
-T mathOp(T a, T b, char op) {
+T arithmetic(T a, T b, BINOPS op) {
     switch (op) {
-        case '+' : return a + b;
-        case '*' : return a * b;
-        case '-' : return a - b;
-        case '/' : return a / b;
-        case '^' : return (char)a ^ (char)b;
-        case '&' : return (char)a & (char)b;
+        case PLUS : return a + b;
+        case MUL  : return a * b;
+        case MIN  : return a - b;
+        case DIV  : return a / b;
+        default   : throw;
     }
-    throw;
 };
 
-JSValuePtr JSValue::arithmetic(JSValuePtr value, char op) {
-    if (isFloat() or value->isFloat()) {
-        float af, bf, cf;
-        af = isFloat() ? getFloat() : (float)getInt();
-        bf = value->isFloat() ? value->getFloat() : (float)value->getInt();
-        cf = mathOp(af, bf, op);
-        return JSValuePtr(new JSValue(value->parent, cf, JSVALUE_FLOAT));
-    } else if (isInt() and value->isInt()) {
-        int a, b, c;
-        a = getInt();
-        b = value->getInt();
-        c = mathOp(a, b, op);
-        return JSValuePtr(new JSValue(value->parent, c, JSVALUE_INT));
+JSValuePtr JSValue::binOp(JSValuePtr value, BINOPS op) {
+    // Arithmethic
+    if (op == MIN || op == PLUS || op == MUL || op == DIV) {
+        if (isFloat() or value->isFloat()) {
+            float af, bf, cf;
+            af = isFloat() ? getFloat() : (float)getInt();
+            bf = value->isFloat() ? value->getFloat() : (float)value->getInt();
+            cf = arithmetic(af, bf, op);
+            return JSValuePtr(new JSValue(value->parent, cf, JSVALUE_FLOAT));
+        } else if (isInt() and value->isInt()) {
+            int a, b, c;
+            a = getInt();
+            b = value->getInt();
+            c = arithmetic(a, b, op);
+            return JSValuePtr(new JSValue(value->parent, c, JSVALUE_INT));
+        }
     }
-    throw;
+
+    // TODO: support strings
+    unsigned int l, r;
+    l = isFloat() ? (int)getFloat() : getInt();
+    r = value->isFloat() ? (int)value->getFloat() : value->getInt();
+
+    // Logic operators
+    if (op == XOR || op == AND) {
+        if (op == XOR)
+            l = l ^ r;
+        if (op == AND)
+            l = l & r;
+        if (isFloat())
+            return JSValuePtr(new JSValue(value->parent, (float)l, JSVALUE_FLOAT));
+        return JSValuePtr(new JSValue(value->parent, (int)l, JSVALUE_INT));
+
+    }
+
+    // Comparrison operators
+    auto result = JSValuePtr(new JSValue(value->parent, false, JSVALUE_BOOL));
+    switch(op) {
+        case LT     : result->setBool(l < r);   break;
+        case LT_EQ  : result->setBool(l <= r);  break;
+        case GT     : result->setBool(l > r);   break;
+        case GT_EQ  : result->setBool(l >= r);  break;
+        case NOT_EQ : result->setBool(l != r);  break;
+        default     : result = JSValuePtr(new JSValue());
+    }
+    return result;
 };
 
 JSContext::JSContext() {

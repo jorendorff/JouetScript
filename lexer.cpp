@@ -42,7 +42,7 @@ std::string Lexer::getTokenStr(TOKEN_TYPES token) {
         case ALPHA      : return "ALPHA";
         case STRING     : return "STRING";
         case EQUALS     : return "EQUALS";
-        case OPERATOR   : return "OPERATOR";
+        case BINOP      : return "BINOP";
         case SEMICOLON  : return "SEMICOLON";
         case L_PAR      : return "L_PAR";
         case R_PAR      : return "R_PAR";
@@ -213,14 +213,17 @@ void Lexer::nextToken() {
        return;
     }
 
-    /* OPERATORS */
-    if (currentChr() == '+' or
-        currentChr() == '-' or
+    /* BINOPS */
+    if ((currentChr() == '+' && peek() != '+') or
+        (currentChr() == '-' && peek() != '-') or
+        (currentChr() == '!' && peek() == '=') or
         currentChr() == '*' or
         currentChr() == '/' or
         currentChr() == '^' or
-        currentChr() == '&') {
-        token = OPERATOR;
+        currentChr() == '&' or
+        currentChr() == '>' or
+        currentChr() == '<') {
+        token = BINOP;
         saveAndNext();
         return;
     }
@@ -246,6 +249,59 @@ void Lexer::prevToken() {
     substr = prev_substr;
     end_position = prev_position;
     token = prev_token;
+};
+
+BINOPS Lexer::binOp() {
+    if (currentChr() == '+') {
+        if (peek() == '=') {
+            next();
+            return PLUS_EQ;
+        }
+        return PLUS;
+    }
+    if (currentChr() == '-') {
+        if (peek() == '=') {
+            next();
+            return MIN_EQ;
+        }
+        return MIN;
+    }
+    if (currentChr() == '*') {
+        if (peek() == '=') {
+            next();
+            return MUL_EQ;
+        }
+        return MUL;
+    }
+    if (currentChr() == '/') {
+        if (peek() == '=') {
+            next();
+            return DIV_EQ;
+        }
+        return DIV;
+    }
+    if (currentChr() == '^') {
+        if (peek() == '=') {
+            next();
+            return XOR_EQ;
+        }
+        return XOR;
+    }
+    if (currentChr() == '&') {
+        if (peek() == '=') {
+            next();
+            return AND_EQ;
+        }
+        return AND;
+    }
+    if (currentChr() == '<') {
+        if (peek() == '=') {
+            next();
+            return LT_EQ;
+        }
+        return LT;
+    }
+    return _BINOP_NOT_FOUND_;
 };
 
 bool Lexer::match(TOKEN_TYPES type) {

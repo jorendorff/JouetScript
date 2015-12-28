@@ -57,10 +57,10 @@ JSValuePtr JScript::callFunction(JSValuePtr func) {
 
 JSValuePtr JScript::digit() {
     JSValuePtr val, zero_val;
-    char op = 0; // if we see this, we need to do arithmetic on our value
-    if (lexer.match(OPERATOR)) {
+    BINOPS op = _BINOP_NOT_FOUND_;
+    if (lexer.match(BINOP)) {
         lexer.backup();
-        op = lexer.currentChr();
+        op = lexer.binOp();
         lexer.next();
         zero_val = JSValuePtr(new JSValue(cxt.getCurrentScope(), 0, JSVALUE_INT));
         lexer.nextToken();
@@ -70,9 +70,9 @@ JSValuePtr JScript::digit() {
     } else if (lexer.match(FLOAT)) {
         val = JSValuePtr(new JSValue(cxt.getCurrentScope(), std::stof(lexer.substr), JSVALUE_FLOAT));
     }
-    if (op && val) {
+    if ((op == MIN) && val) {
         zero_val = JSValuePtr(new JSValue(cxt.getCurrentScope(), 0, JSVALUE_INT));
-        val = zero_val->arithmetic(val, op);
+        val = zero_val->binOp(val, op);
     }
     return val;
 };
@@ -87,12 +87,12 @@ JSValuePtr JScript::factor() {
     return r;
 };
 
-JSValuePtr JScript::mathExp(JSValuePtr &start) {
+JSValuePtr JScript::binOp(JSValuePtr &start) {
     lexer.backup();
-    char op = lexer.currentChr();
+    BINOPS op = lexer.binOp();
     lexer.next();
     lexer.nextToken();
-    return start->arithmetic(base(), op);
+    return start->binOp(base(), op);
 };
 
 void JScript::assignment() {
@@ -297,8 +297,8 @@ JSValuePtr JScript::base() {
             val = JSValuePtr(new JSValue());
         } else if (lexer.match(L_PAR)) {
             val = callFunction(val);
-        } else if (lexer.match(OPERATOR)) {
-            val = mathExp(val);
+        } else if (lexer.match(BINOP)) {
+            val = binOp(val);
         } else {
             lexer.prevToken();
         }
@@ -307,18 +307,18 @@ JSValuePtr JScript::base() {
     if (lexer.match(L_PAR) && !val) {
         val = factor();
         lexer.nextToken();
-        if (lexer.match(OPERATOR)) {
-            val = mathExp(val);
+        if (lexer.match(BINOP)) {
+            val = binOp(val);
         } else {
             lexer.prevToken();
         }
     }
 
-    if ((lexer.match(INT) or lexer.match(FLOAT) or lexer.match(OPERATOR)) && !val) {
+    if ((lexer.match(INT) or lexer.match(FLOAT) or lexer.match(BINOP)) && !val) {
         val = digit();
         lexer.nextToken();
-        if (lexer.match(OPERATOR)) {
-            val = mathExp(val);
+        if (lexer.match(BINOP)) {
+            val = binOp(val);
         } else {
             lexer.prevToken();
         }

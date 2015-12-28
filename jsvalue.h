@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <map>
+#include "lexer.h"
 
 enum JSVALUE_FLAGS {
     JSVALUE_UNDEFINED   = 0,
@@ -39,10 +40,11 @@ class JSValue {
 
         JSValue(JSValuePtr parent, bool data, JSVALUE_FLAGS flags);
         bool getBool();
+        void setBool(bool value)          { intData = (int)value; };
         bool isBool()       { return (flags & JSVALUE_BOOL) != 0; };
 
         std::string str();
-        JSValuePtr arithmetic(JSValuePtr, char);
+        JSValuePtr binOp(JSValuePtr, BINOPS);
 
         bool isFunction()   { return (flags & JSVALUE_FUNCTION) != 0; };
         /* named arguments for functions */
