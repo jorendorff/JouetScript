@@ -344,7 +344,8 @@ JSValuePtr JScript::base() {
     lexer.nextToken();
     if (lexer.token != SEMICOLON)
         lexer.prevToken();
-
+    // skip comments
+    lexer.skipComments();
     return val;
 };
 

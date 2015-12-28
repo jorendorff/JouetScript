@@ -119,18 +119,32 @@ void Lexer::skipWhiteSpace() {
         next();
 };
 
+void Lexer::skipComments() {
+    if (currentChr() == '/' && peek() == '*') {
+        next();
+        next();
+        while (currentChr() != '*' && peek() != '/')
+            next();
+        next();
+        next();
+    }
+    if (currentChr() == '/' && peek() == '/')
+        while (currentChr() != '\n' && currentChr() != '\0')
+            next();
+};
+
 bool Lexer::isAlpha() {
     if ((currentChr() >= 'a' and currentChr() <= 'z') or
         (currentChr() >= 'A' and currentChr() <= 'Z'))
         return true;
     return false;
-}
+};
 
 bool Lexer::isDigit() {
     if (currentChr() >= '0' and currentChr() <= '9')
         return true;
     return false;
-}
+};
 
 void Lexer::nextToken() {
     prev_substr = substr;
@@ -138,6 +152,7 @@ void Lexer::nextToken() {
     prev_token = token;
     substr.clear();
     skipWhiteSpace();
+    skipComments();
 
     /* ALPHA KEYWORDS AND IDENTIFIERS */
     if (isAlpha()) {
@@ -231,7 +246,7 @@ void Lexer::prevToken() {
     substr = prev_substr;
     end_position = prev_position;
     token = prev_token;
-}
+};
 
 bool Lexer::match(TOKEN_TYPES type) {
     if (token == type)
@@ -250,8 +265,8 @@ bool Lexer::matchOrFail(TOKEN_TYPES type) {
 
 void Lexer::error() {
     throw new LexerException("unexpected " + getCurrentTokenStr(), end_position);
-}
+};
 
 void Lexer::error(const std::string msg) {
     throw new LexerException(msg, end_position);
-}
+};

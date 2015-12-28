@@ -1,3 +1,7 @@
+/**
+ * Demonstrtate that if-then-else statements don't ummm... crash. :-|
+ **/
+
 if (true) {
     100;
 } else {

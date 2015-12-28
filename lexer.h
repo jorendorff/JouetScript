@@ -74,6 +74,7 @@ class Lexer {
         char currentChr();
         char peek();
         void skipWhiteSpace();
+        void skipComments();
         bool isAlpha();
         bool isDigit();
         void nextToken();
