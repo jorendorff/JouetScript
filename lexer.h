@@ -23,6 +23,7 @@ enum TOKEN_TYPES {
     COMMA,
     IF,
     ELSE,
+    WHILE,
     _EOF_
 };
 

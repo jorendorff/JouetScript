@@ -51,6 +51,7 @@ std::string Lexer::getTokenStr(TOKEN_TYPES token) {
         case COMMA      : return "COMMA";
         case IF         : return "IF";
         case ELSE       : return "ELSE";
+        case WHILE      : return "WHILE";
         case _EOF_      : return "EOF";
     }
     return "";
@@ -141,6 +142,9 @@ void Lexer::nextToken() {
             return;
         } else if (substr == "else") {
             token = ELSE;
+            return;
+        } else if (substr == "while") {
+            token = WHILE;
             return;
         } else {
             token = IDENTIFIER;
