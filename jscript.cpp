@@ -28,7 +28,7 @@ JSValuePtr JScript::execute(std::string line) {
         result = base();
     }
     return result;
-};
+}
 
 JSValuePtr JScript::callFunction(JSValuePtr func) {
     std::vector<JSValuePtr> arguments;
@@ -47,13 +47,13 @@ JSValuePtr JScript::callFunction(JSValuePtr func) {
         } else {
             cxt.storeValueByName(func->arguments[i], JSValuePtr());
         }
-    };
+    }
     JScript tmpJScript(cxt);
     JSValuePtr val = tmpJScript.execute(func->getString());
     // kill the function scope
     cxt.popScope();
     return val;
-};
+}
 
 JSValuePtr JScript::digit() {
     JSValuePtr val, zero_val;
@@ -75,7 +75,7 @@ JSValuePtr JScript::digit() {
         val = zero_val->binOp(val, op);
     }
     return val;
-};
+}
 
 JSValuePtr JScript::factor() {
     JSValuePtr r;
@@ -85,7 +85,7 @@ JSValuePtr JScript::factor() {
     lexer.nextToken();
     lexer.matchOrFail(R_PAR);
     return r;
-};
+}
 
 JSValuePtr JScript::binOp(JSValuePtr &start) {
     lexer.backup();
@@ -93,7 +93,7 @@ JSValuePtr JScript::binOp(JSValuePtr &start) {
     lexer.next();
     lexer.nextToken();
     return start->binOp(base(), op);
-};
+}
 
 void JScript::assignment() {
     lexer.matchOrFail(IDENTIFIER);
@@ -105,7 +105,7 @@ void JScript::assignment() {
     lexer.nextToken();
     JSValuePtr value = base();
     cxt.storeValueByName(name, value);
-};
+}
 
 JSValuePtr JScript::block() {
     JSValuePtr val;
@@ -122,7 +122,7 @@ JSValuePtr JScript::block() {
         val = base();
     }
     return val;
-};
+}
 
 JSValuePtr JScript::ifStatement() {
     lexer.matchOrFail(IF);
@@ -161,7 +161,7 @@ JSValuePtr JScript::ifStatement() {
     if (!val)
         val = JSValuePtr(new JSValue());
     return val;
-};
+}
 
 JSValuePtr JScript::whileLoop() {
     lexer.matchOrFail(WHILE);
@@ -192,7 +192,7 @@ JSValuePtr JScript::whileLoop() {
     if (!val)
         val = JSValuePtr(new JSValue());
     return val;
-};
+}
 
 JSValuePtr JScript::defineLambdaFunction() {
     std::vector<std::string> arguments;
@@ -232,7 +232,7 @@ JSValuePtr JScript::defineLambdaFunction() {
     JSValuePtr val = JSValuePtr(new JSValue(cxt.getCurrentScope(), function_body, JSVALUE_FUNCTION));
     val->arguments = arguments;
     return val;
-};
+}
 
 void JScript::defineFunction() {
     std::string funcName = lexer.substr;
@@ -240,7 +240,7 @@ void JScript::defineFunction() {
     lexer.matchOrFail(L_PAR);
     JSValuePtr value = defineLambdaFunction();
     cxt.storeValueByName(funcName, value);
-};
+}
 
 JSValuePtr JScript::base() {
     JSValuePtr val;
@@ -347,5 +347,4 @@ JSValuePtr JScript::base() {
     // skip comments
     lexer.skipComments();
     return val;
-};
-
+}

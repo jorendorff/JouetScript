@@ -7,13 +7,13 @@
 JSValue::JSValue() {
     flags = JSVALUE_UNDEFINED;
     locals = std::map<std::string, JSValuePtr>();
-};
+}
 
 JSValue::JSValue(JSValuePtr parent) {
     flags = JSVALUE_UNDEFINED;
     locals = std::map<std::string, JSValuePtr>();
     this->parent = parent;
-};
+}
 
 JSValue::JSValue(JSValuePtr parent, int data, JSVALUE_FLAGS flags) {
     intData = data;
@@ -21,7 +21,7 @@ JSValue::JSValue(JSValuePtr parent, int data, JSVALUE_FLAGS flags) {
     marked = false;
     locals = std::map<std::string, JSValuePtr>();
     this->parent = parent;
-};
+}
 
 int JSValue::getInt() {
     return intData;
@@ -33,7 +33,7 @@ JSValue::JSValue(JSValuePtr parent, float data, JSVALUE_FLAGS flags) {
     marked = false;
     locals = std::map<std::string, JSValuePtr>();
     this->parent = parent;
-};
+}
 
 float JSValue::getFloat() {
     return floatData;
@@ -45,7 +45,7 @@ JSValue::JSValue(JSValuePtr parent, std::string data, JSVALUE_FLAGS flags) {
     marked = false;
     locals = std::map<std::string, JSValuePtr>();
     this->parent = parent;
-};
+}
 
 std::string JSValue::getString() {
     return data;
@@ -57,7 +57,7 @@ JSValue::JSValue(JSValuePtr parent, bool data, JSVALUE_FLAGS flags) {
     marked = false;
     locals = std::map<std::string, JSValuePtr>();
     this->parent = parent;
-};
+}
 
 bool JSValue::getBool() {
     return intData ? true : false;
@@ -94,7 +94,7 @@ T arithmetic(T a, T b, BINOPS op) {
         case DIV  : return a / b;
         default   : throw;
     }
-};
+}
 
 JSValuePtr JSValue::binOp(JSValuePtr value, BINOPS op) {
     // Arithmethic
@@ -142,28 +142,28 @@ JSValuePtr JSValue::binOp(JSValuePtr value, BINOPS op) {
         default     : result = JSValuePtr(new JSValue());
     }
     return result;
-};
+}
 
 JSContext::JSContext() {
     JSScopeChain = std::vector<JSValuePtr>();
     JSScopeChain.push_back(JSValuePtr(new JSValue()));
-};
+}
 
 void JSContext::pushScope(JSValuePtr value) {
     JSScopeChain.push_back(value);
-};
+}
 
 void JSContext::popScope() {
     JSScopeChain.pop_back();
-};
+}
 
 JSValuePtr JSContext::getCurrentScope() {
     return JSScopeChain[JSScopeChain.size() - 1];
-};
+}
 
 void JSContext::storeValueByName(std::string name, JSValuePtr value) {
     getCurrentScope()->locals[name] = value;
-};
+}
 
 void JSContext::overwriteNamedValue(std::string name, JSValuePtr original, JSValuePtr value) {
     JSValuePtr current = getCurrentScope();
@@ -174,7 +174,7 @@ void JSContext::overwriteNamedValue(std::string name, JSValuePtr original, JSVal
         }
         current = current->parent;
     }
-};
+}
 
 JSValuePtr JSContext::lookupValueByName(std::string name) {
     JSValuePtr current = getCurrentScope();
@@ -184,4 +184,4 @@ JSValuePtr JSContext::lookupValueByName(std::string name) {
         current = current->parent;
     }
     return NULL;
-};
+}

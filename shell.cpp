@@ -21,7 +21,7 @@ int main(int argc, char *argv[]) {
         } catch (LexerException *ex) {
             std::cout << ex->msg << std::endl;
             return 1;
-        };
+        }
         return 0;
     }
     for (;;) {
@@ -40,6 +40,6 @@ int main(int argc, char *argv[]) {
             }
         } catch (LexerException *ex) {
             std::cout << ex->msg << std::endl;
-        };
+        }
     }
 }

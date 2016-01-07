@@ -24,29 +24,29 @@ class JSValue {
     public:
         JSValue();
         JSValue(JSValuePtr parent);
-        bool isUndefined()  { return (flags & JSVALUE_UNDEFINED) != 0; };
+        bool isUndefined()  { return (flags & JSVALUE_UNDEFINED) != 0; }
 
         JSValue(JSValuePtr parent, int data, JSVALUE_FLAGS flags);
         int getInt();
-        bool isInt()        { return (flags & JSVALUE_INT) != 0; };
+        bool isInt()        { return (flags & JSVALUE_INT) != 0; }
 
         JSValue(JSValuePtr parent, float data, JSVALUE_FLAGS flags);
         float getFloat();
-        bool isFloat()      { return (flags & JSVALUE_FLOAT) != 0; };
+        bool isFloat()      { return (flags & JSVALUE_FLOAT) != 0; }
 
         JSValue(JSValuePtr parent, std::string data, JSVALUE_FLAGS flags);
         std::string getString();
-        bool isString()     { return (flags & JSVALUE_STRING) != 0; };
+        bool isString()     { return (flags & JSVALUE_STRING) != 0; }
 
         JSValue(JSValuePtr parent, bool data, JSVALUE_FLAGS flags);
         bool getBool();
-        void setBool(bool value)          { intData = (int)value; };
-        bool isBool()       { return (flags & JSVALUE_BOOL) != 0; };
+        void setBool(bool value)          { intData = (int)value; }
+        bool isBool()       { return (flags & JSVALUE_BOOL) != 0; }
 
         std::string str();
         JSValuePtr binOp(JSValuePtr, BINOPS);
 
-        bool isFunction()   { return (flags & JSVALUE_FUNCTION) != 0; };
+        bool isFunction()   { return (flags & JSVALUE_FUNCTION) != 0; }
         /* named arguments for functions */
         std::vector<std::string> arguments;
 

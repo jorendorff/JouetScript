@@ -15,7 +15,7 @@ Lexer::Lexer() {
 
 void Lexer::load(std::string &line) {
     buffer = buffer + line;
-};
+}
 
 void Lexer::reset() {
     buffer = "";
@@ -25,7 +25,7 @@ void Lexer::reset() {
     prev_token = EMPTY;
     substr = "";
     prev_substr = "";
-};
+}
 
 
 std::string Lexer::getTokenStr(TOKEN_TYPES token) {
@@ -55,7 +55,7 @@ std::string Lexer::getTokenStr(TOKEN_TYPES token) {
         case _EOF_      : return "EOF";
     }
     return "";
-};
+}
 
 std::string Lexer::getCurrentTokenStr() {
     return getTokenStr(token);
@@ -70,7 +70,7 @@ struct LexerState Lexer::dumpLexerState() {
     state.substr = substr;
     state.prev_substr = prev_substr;
     return state;
-};
+}
 
 void Lexer::loadLexerState(struct LexerState state) {
     token = state.token;
@@ -79,37 +79,37 @@ void Lexer::loadLexerState(struct LexerState state) {
     prev_position = state.prev_position;
     substr = state.substr;
     prev_substr = state.prev_substr;
-};
+}
 
 void Lexer::next() {
     // allow escaping
     if (currentChr() == '\\')
         end_position++;
     end_position++;
-};
+}
 
 void Lexer::backup() {
     end_position--;
-};
+}
 
 void Lexer::save() {
     substr = substr + currentChr();
-};
+}
 
 void Lexer::saveAndNext() {
     if (currentChr() == '\\')
         end_position++;
     save();
     next();
-};
+}
 
 char Lexer::currentChr() {
     return buffer[end_position];
-};
+}
 
 char Lexer::peek() {
     return buffer[end_position + 1];
-};
+}
 
 void Lexer::skipWhiteSpace() {
     while (currentChr() == ' ' or
@@ -117,7 +117,7 @@ void Lexer::skipWhiteSpace() {
             currentChr() == '\r' or
             currentChr() == '\n')
         next();
-};
+}
 
 void Lexer::skipComments() {
     if (currentChr() == '/' && peek() == '*') {
@@ -131,20 +131,20 @@ void Lexer::skipComments() {
     if (currentChr() == '/' && peek() == '/')
         while (currentChr() != '\n' && currentChr() != '\0')
             next();
-};
+}
 
 bool Lexer::isAlpha() {
     if ((currentChr() >= 'a' and currentChr() <= 'z') or
         (currentChr() >= 'A' and currentChr() <= 'Z'))
         return true;
     return false;
-};
+}
 
 bool Lexer::isDigit() {
     if (currentChr() >= '0' and currentChr() <= '9')
         return true;
     return false;
-};
+}
 
 void Lexer::nextToken() {
     prev_substr = substr;
@@ -243,13 +243,13 @@ void Lexer::nextToken() {
         next();
     token = _EOF_;
     return;
-};
+}
 
 void Lexer::prevToken() {
     substr = prev_substr;
     end_position = prev_position;
     token = prev_token;
-};
+}
 
 BINOPS Lexer::binOp() {
     if (currentChr() == '+') {
@@ -302,13 +302,13 @@ BINOPS Lexer::binOp() {
         return LT;
     }
     return _BINOP_NOT_FOUND_;
-};
+}
 
 bool Lexer::match(TOKEN_TYPES type) {
     if (token == type)
         return true;
     return false;
-};
+}
 
 bool Lexer::matchOrFail(TOKEN_TYPES type) {
     if (token != type)
@@ -317,12 +317,12 @@ bool Lexer::matchOrFail(TOKEN_TYPES type) {
             end_position
         );
     return true;
-};
+}
 
 void Lexer::error() {
     throw new LexerException("unexpected " + getCurrentTokenStr(), end_position);
-};
+}
 
 void Lexer::error(const std::string msg) {
     throw new LexerException(msg, end_position);
-};
+}
